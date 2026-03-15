@@ -1,0 +1,7 @@
+[submodule "libs/cli11"]
+	path = libs/cli11
+	url = https://github.com/CLIUtils/CLI11
+
+[submodule "libs/llvm"]
+	path = libs/llvm
+	url = https://github.com/llvm/llvm-project
