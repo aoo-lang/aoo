@@ -101,7 +101,6 @@ namespace AO::Lexer {
         CH_SEMICOLON,               // ;
         CH_UNDERSCORE,              // _
         CH_COMMA,                   // ,
-        CH_APOSTROPHE,              // '
         CH_COLON,                   // :
         CH_PERIOD,                  // .
         CH_LEFT_PAREN,              // (
@@ -118,6 +117,7 @@ namespace AO::Lexer {
         GN_CHAR,
         GN_STRING,
         GN_IDENTIFIER,
+        GN_LABEL,
 
         MISC_WHITESPACE,
         MISC_EOF,
@@ -205,7 +205,6 @@ namespace AO::Lexer {
             case CH_SEMICOLON: return "CH_SEMICOLON";
             case CH_UNDERSCORE: return "CH_UNDERSCORE";
             case CH_COMMA: return "CH_COMMA";
-            case CH_APOSTROPHE: return "CH_APOSTROPHE";
             case CH_COLON: return "CH_COLON";
             case CH_PERIOD: return "CH_PERIOD";
             case CH_LEFT_PAREN: return "CH_LEFT_PAREN";
@@ -227,10 +226,10 @@ namespace AO::Lexer {
             case GN_CHAR: return "GN_CHAR";
             case GN_STRING: return "GN_STRING";
             case GN_IDENTIFIER: return "GN_IDENTIFIER";
+            case GN_LABEL: return "GN_LABEL";
             case MISC_WHITESPACE: return "MISC_WHITESPACE";
             case MISC_EOF: return "MISC_EOF";
             case MISC_ERROR: return "MISC_ERROR";
-            default: return "UNKNOWN_TOKEN_TYPE";
         }
     }
 
@@ -251,7 +250,6 @@ namespace AO::Lexer {
             case StringType::CStyle: return "CStyle";
             case StringType::Format: return "Format";
             case StringType::Raw: return "Raw";
-            default: return "UNKNOWN_STRING_TYPE";
         }
     }
 

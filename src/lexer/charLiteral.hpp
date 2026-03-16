@@ -3,13 +3,14 @@
 #include <span>
 
 #include "../currentFile.hpp"
+#include "../util/string.hpp"
 #include "tokens.hpp"
 
 namespace AO::Lexer {
     typedef uint8_t u8;
     typedef uint16_t u16;
     typedef uint64_t u64;
-    using std::array, std::span;
+    using std::array, std::span, Util::isValidIdentifierStart, Util::isValidIdentifierPart;
     using enum TokenType;
     using enum StringType;
 
@@ -79,6 +80,25 @@ namespace AO::Lexer {
 
     }
 
+    [[nodiscard]] inline Token getUnicodeEscapeSequence(u64& cursor) noexcept {
+
+    }
+
+    [[nodiscard]] inline Token getValidEscapedChar(u64& cursor, u8 escapedChar) noexcept {
+        cursor += 3;
+        if (fileContent[cursor] == '\'') {
+            cursor++;
+            return {.type = GN_CHAR, .strType = NotAString, .u8Payload = escapedChar};
+        }
+        else {
+            const u64 origin = cursor - 3;
+            while (cursor < fileContent.size() && fileContent[cursor] != '\'') cursor++;
+            if (fileContent[cursor] == '\'') cursor++;
+            return {.type = MISC_ERROR, .strType = NotAString, .payload = span(fileContent.data() + origin, cursor - origin)};
+        }
+    }
+
+    //You may get a GN_LABEL from this.
     [[nodiscard]] inline Token getCharLiteral(u64& cursor) noexcept {
         if (cursor + 2 < fileContent.size()) {
             const u8 firstChar = fileContent[cursor + 1];
@@ -86,39 +106,48 @@ namespace AO::Lexer {
                 //maybe escape sequence
                 const u8 secondChar = fileContent[cursor + 2];
                 switch (secondChar) {
-                    case 'a': cursor += 4; return {.type = GN_CHAR, .strType = NotAString, .u8Payload = '\a'};
-                    case 'b': cursor += 4; return {.type = GN_CHAR, .strType = NotAString, .u8Payload = '\b'};
-                    case 'f': cursor += 4; return {.type = GN_CHAR, .strType = NotAString, .u8Payload = '\f'};
-                    case 'n': cursor += 4; return {.type = GN_CHAR, .strType = NotAString, .u8Payload = '\n'};
-                    case 'r': cursor += 4; return {.type = GN_CHAR, .strType = NotAString, .u8Payload = '\r'};
-                    case 't': cursor += 4; return {.type = GN_CHAR, .strType = NotAString, .u8Payload = '\t'};
-                    case 'v': cursor += 4; return {.type = GN_CHAR, .strType = NotAString, .u8Payload = '\v'};
-                    case '\\': cursor += 4; return {.type = GN_CHAR, .strType = NotAString, .u8Payload = '\\'};
-                    case '\'': cursor += 4; return {.type = GN_CHAR, .strType = NotAString, .u8Payload = '\''};
+                    case 'a': return getValidEscapedChar(cursor, '\a');
+                    case 'b': return getValidEscapedChar(cursor, '\b');
+                    case 'f': return getValidEscapedChar(cursor, '\f');
+                    case 'n': return getValidEscapedChar(cursor, '\n');
+                    case 'r': return getValidEscapedChar(cursor, '\r');
+                    case 't': return getValidEscapedChar(cursor, '\t');
+                    case 'v': return getValidEscapedChar(cursor, '\v');
+                    case '\\': return getValidEscapedChar(cursor, '\\');
+                    case '\'': return getValidEscapedChar(cursor, '\'');
                     //Octal escape sequences.
                     case '0'...'7': return getOctalEscapeSequence(cursor, secondChar);
                     //Hexadecimal escape sequences.
-                    case 'x': return getHexEscapeSequence(cursor);
+                    case 'x': case 'X': return getHexEscapeSequence(cursor);
+                    //Unicode escape sequences.
+                    case 'u': case 'U': return getUnicodeEscapeSequence(cursor);
                     //Greedy until ' and error out.
                     default:
                 }
             }
-            //Not enough chars to be escaped. Greedy until the end.
-            else if (firstChar == '\\') {
-
-            }
-            else { //Normal char literal
-                //Not closed. Greedy until '.
+            //Not enough chars to be escaped.
+            else if (firstChar == '\\') return {.type = MISC_ERROR, .strType = NotAString, .payload = span(fileContent.data() + cursor, 3)};
+            else { //Normal char literal or label
+                //Not closed. Check for : for labels, otherwise greedy until ' and error out.
                 if (fileContent[cursor + 2] != '\'') {
-
+                    cursor += 2;
+                    bool possibleLabel = true;
+                    while (cursor < fileContent.size()) {
+                        switch (fileContent[cursor]) {
+                            
+                        }
+                    }
                 }
-                cursor += 3;
-                return {.type = GN_CHAR, .strType = NotAString, .u8Payload = firstChar};
+                else { //Closed -> char literal.
+                    cursor += 3;
+                    return {.type = GN_CHAR, .strType = NotAString, .u8Payload = firstChar};
+                }
             }
         }
         else {
-            cursor++;
-            return {.type = CH_APOSTROPHE, .strType = NotAString, .payload = {}};
+            //Consume the last 2 characters.
+            cursor += 2;
+            return {.type = MISC_ERROR, .strType = NotAString, .payload = span(fileContent.data() + cursor - 2, 2)};
         }
     }
 }
