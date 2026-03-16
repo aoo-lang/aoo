@@ -38,6 +38,16 @@ namespace AO::Lexer {
             return {.type = MISC_WHITESPACE, .strType = NotAString, .payload = {}};
         }
         switch (fileContent[cursor]) {
+            //BOM mark `EF BB BF`
+            case 239:
+                if (cursor + 2 < fileContent.size() && fileContent[cursor + 1] == 187 && fileContent[cursor + 2] == 191) {
+                    cursor += 3;
+                    return getNextToken();
+                }
+                else {
+                    cursor++;
+                    return {.type = MISC_ERROR, .strType = NotAString, .payload = span(fileContent.data() + cursor - 1, 1)};
+                }
             case '+':
                 if (cursor + 1 < fileContent.size()) {
                     if (fileContent[cursor + 1] == '+') {
@@ -69,9 +79,15 @@ namespace AO::Lexer {
                 cursor++;
                 return {.type = OP_DASH, .strType = NotAString, .payload = {}};
             case '*':
-                if (cursor + 1 < fileContent.size() && fileContent[cursor + 1] == '=') {
-                    cursor += 2;
-                    return {.type = OP_STAR_EQUAL, .strType = NotAString, .payload = {}};
+                if (cursor + 1 < fileContent.size()) {
+                    if (fileContent[cursor + 1] == '=') {
+                        cursor += 2;
+                        return {.type = OP_STAR_EQUAL, .strType = NotAString, .payload = {}};
+                    }
+                    else if (fileContent[cursor + 1] == '*') {
+                        cursor += 2;
+                        return {.type = OP_DOUBLE_STAR, .strType = NotAString, .payload = {}};
+                    }
                 }
                 cursor++;
                 return {.type = OP_STAR, .strType = NotAString, .payload = {}};

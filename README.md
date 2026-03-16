@@ -4,11 +4,11 @@ A programming language for Pallas' Cats (manuls).
 
 A language designed for simplicity yet powerful usage, by combining C++'s power with Rust's (part of) safety and simplicity.
 
-Also a semester "homework" for *Introduction to Compilers* to *"impress"* my teacher. :)
+Also a semester "homework" for *Principles of Compiler* to *"impress"* my teacher. :)
 
 ## Properties
 
-1. Compiled. 
+1. Compiled.
 2. Statically typed.
 3. Simple. AO has the same number of keywords as C89. It's incredibly easy to program in AO.
 4. "Better" OOP by: No constructor; No inheritance; No virtual methods; Independent Interface definition.

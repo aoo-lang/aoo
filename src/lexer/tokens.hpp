@@ -52,6 +52,7 @@ namespace AO::Lexer {
         OP_DASH_EQUAL,              // -=
 
         OP_STAR,                    // *
+        OP_DOUBLE_STAR,             // **
         OP_STAR_EQUAL,              // *=
 
         OP_SLASH,                   // /
@@ -168,6 +169,7 @@ namespace AO::Lexer {
             case OP_DOUBLE_DASH: return "OP_DOUBLE_DASH";
             case OP_DASH_EQUAL: return "OP_DASH_EQUAL";
             case OP_STAR: return "OP_STAR";
+            case OP_DOUBLE_STAR: return "OP_DOUBLE_STAR";
             case OP_STAR_EQUAL: return "OP_STAR_EQUAL";
             case OP_SLASH: return "OP_SLASH";
             case OP_SLASH_EQUAL: return "OP_SLASH_EQUAL";

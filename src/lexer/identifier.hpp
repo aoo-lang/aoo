@@ -66,10 +66,11 @@ namespace AO::Lexer {
             const span<const u8> identifier = span<const u8>(fileContent.data() + identifierStart, cursor - identifierStart);
             return {.type = keywordToTokenType(identifier), .strType = StringType::NotAString, .payload = identifier};
         }
+        //note: UTF-8 characters are not valid identifiers, and they will go to this branch and be treated as unknown characters, but they are split up (emits more than one token from one character) in this process.
         else {
             //Unknown character
             cursor++;
-            return {.type = TokenType::MISC_ERROR, .strType = StringType::NotAString, .payload = {}};
+            return {.type = TokenType::MISC_ERROR, .strType = StringType::NotAString, .payload = span(fileContent.data() + cursor - 1, 1)};
         }
     }
 }

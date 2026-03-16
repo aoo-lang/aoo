@@ -127,6 +127,8 @@ namespace AO::Lexer {
             }
             //Not enough chars to be escaped.
             else if (firstChar == '\\') return {.type = MISC_ERROR, .strType = NotAString, .payload = span(fileContent.data() + cursor, 3)};
+            //Empty char literal is invalid.
+            else if (firstChar == '\'') return {.type = MISC_ERROR, .strType = NotAString, .payload = span(fileContent.data() + cursor, 2)};
             else { //Normal char literal or label
                 //Not closed. Check for : for labels, otherwise greedy until ' and error out.
                 if (fileContent[cursor + 2] != '\'') {
