@@ -7,7 +7,7 @@
             "name": "AOO Apostrophe",
             "program": "${command:cmake.launchTargetPath}",
             "cwd": "${workspaceFolder}",
-            "args": ["--dump-lexer-tokens=1.txt", "tests/apostrophe.aoo"],
+            "args": ["--dump-lexer-tokens=1.txt", "--", "tests/apostrophe.aoo"],
             "stopOnEntry": false
         }
     ]
