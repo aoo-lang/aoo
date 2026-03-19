@@ -3,7 +3,7 @@
 #include <string>
 #include <boost/unordered/unordered_flat_map.hpp>
 
-namespace AO::Parser {
+namespace AOO::Parser {
     typedef uint8_t u8;
     typedef uint64_t u64;
     using std::string, std::span, boost::unordered_flat_map;

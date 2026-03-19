@@ -3,7 +3,7 @@
 #include "../currentFile.hpp"
 #include "tokens.hpp"
 
-namespace AO::Lexer {
+namespace AOO::Lexer {
 
     [[nodiscard]] inline Token getStringLiteral(u64& cursor) noexcept {
         using enum TokenType;

@@ -4,10 +4,10 @@
         {
             "type": "lldb",
             "request": "launch",
-            "name": "AO Apostrophe",
+            "name": "AOO Apostrophe",
             "program": "${command:cmake.launchTargetPath}",
             "cwd": "${workspaceFolder}",
-            "args": ["-pt", "-pt-f", "1.txt", "tests/apostrophe.ao"],
+            "args": ["--dump-lexer-tokens=1.txt", "tests/apostrophe.aoo"],
             "stopOnEntry": false
         }
     ]

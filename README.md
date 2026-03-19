@@ -1,4 +1,4 @@
-# AO
+# AOO
 
 A programming language for Pallas' Cats (manuls).
 
@@ -10,7 +10,7 @@ Also a semester "homework" for *Principles of Compiler* to *"impress"* my teache
 
 1. Compiled.
 2. Statically typed.
-3. Simple. AO has the same number of keywords as C89. It's incredibly easy to program in AO.
+3. Simple. AOO has less keywords than C89.
 4. "Better" OOP by: No constructor; No inheritance; No virtual methods; Independent Interface definition.
 5. Modules, not header files.
 6. No any memory safety attempts because the true safety is in programmers' minds. Pointers exist and are the only way to store references.
@@ -19,7 +19,7 @@ Also a semester "homework" for *Principles of Compiler* to *"impress"* my teache
 
 ## Examples
 
-```ao
+```aoo
 import std:io:{println, scan};
 
 //No `fn`, `let` keyword. Just use types.

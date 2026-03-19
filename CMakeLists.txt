@@ -1,6 +1,6 @@
 ﻿cmake_minimum_required(VERSION "4.0")
 
-project("AO")
+project("AOO")
 
 #------------Basic-----------------
 set(CMAKE_CXX_STANDARD 23)
@@ -68,17 +68,17 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE INTERNAL "")
 #----------------------------------
 
 #------------Files-----------------
-file(GLOB_RECURSE AO_SOURCES CMAKE_CONFIGURE_DEPENDS "${CMAKE_SOURCE_DIR}/src/*.cpp")
+file(GLOB_RECURSE AOO_SOURCES CMAKE_CONFIGURE_DEPENDS "${CMAKE_SOURCE_DIR}/src/*.cpp")
 #----------------------------------
 
-#----------------AO----------------
-add_executable(${PROJECT_NAME} ${AO_SOURCES})
+#---------------AOO----------------
+add_executable(${PROJECT_NAME} ${AOO_SOURCES})
 #----------------------------------
 
 #------------Build:Macro-----------
 target_compile_definitions(${PROJECT_NAME} PRIVATE
-    #Actual debug flag for AO
-    $<IF:$<CONFIG:Debug>,AO_DEBUG,AO_RELEASE>
+    #Actual debug flag for AOO
+    $<IF:$<CONFIG:Debug>,AOO_DEBUG,AOO_RELEASE>
 )
 #----------------------------------
 

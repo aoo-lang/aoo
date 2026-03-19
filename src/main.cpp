@@ -8,13 +8,13 @@
 using std::cerr;
 
 int main(int argc, char** argv) {
-    const auto args = AO::parseArguments(argc, argv);
-    if (!AO::readInFile(args.inputFile)) {
+    const auto args = AOO::parseArguments(argc, argv);
+    if (!AOO::readInFile(args.inputFile)) {
         cerr << "Error: Failed to read file \"" << args.inputFile << "\"\n";
         return 1000;
     }
-    AO::Lexer::init();
-    AO::Lexer::parse();
-    AO::Debug::printLexerTokens(args);
+    AOO::Lexer::init();
+    AOO::Lexer::parse();
+    AOO::Debug::printLexerTokens(args);
     return 0;
 }

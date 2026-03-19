@@ -5,15 +5,15 @@
 #include "../boot/Arguments.hpp"
 #include "../lexer/Lexer.hpp"
 
-namespace AO::Debug {
-    using std::ofstream, std::cout, std::cerr, AO::Lexer::tokens;
+namespace AOO::Debug {
+    using std::ofstream, std::cout, std::cerr, AOO::Lexer::tokens;
 
-    inline void printLexerTokens(const AO::Arguments& args) noexcept {
-        if (args.printTokens) {
-            if (!args.printTokensFile.empty()) {
-                ofstream out(args.printTokensFile);
+    inline void printLexerTokens(const AOO::Arguments& args) noexcept {
+        if (args.printLexerTokens) {
+            if (!args.printLexerTokensFile.empty()) {
+                ofstream out(args.printLexerTokensFile);
                 if (!out) {
-                    cerr << "Error: Failed to open file \"" << args.printTokensFile << "\" for writing\n";
+                    cerr << "Error: Failed to open file \"" << args.printLexerTokensFile << "\" for writing\n";
                     exit(1001);
                 }
                 for (const auto& token : tokens) out << token << '\n';

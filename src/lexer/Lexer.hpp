@@ -11,7 +11,7 @@
 #include "stringLiteral.hpp"
 #include "tokens.hpp"
 
-namespace AO::Lexer {
+namespace AOO::Lexer {
     typedef uint64_t u64;
     using std::cerr, std::string, std::span, Util::isWhitespace;
 
@@ -30,7 +30,7 @@ namespace AO::Lexer {
         using namespace detail;
         using enum TokenType;
         using enum StringType;
-        using AO::fileContent;
+        using AOO::fileContent;
         if (cursor == fileContent.size()) return {.type = MISC_EOF, .strType = NotAString, .payload = {}};
         else if (cursor > fileContent.size()) {
             cerr << "How did we get here?\n";

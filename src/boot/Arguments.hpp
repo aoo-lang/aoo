@@ -1,11 +1,11 @@
 ﻿#pragma once
 #include <string>
 
-namespace AO {
+namespace AOO {
     using std::string;
 
     struct Arguments {
-        bool printTokens, printAST;
-        string inputFile, printTokensFile;
+        bool printLexerTokens;
+        string inputFile, printLexerTokensFile;
     };
 }

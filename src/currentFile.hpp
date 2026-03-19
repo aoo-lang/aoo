@@ -4,7 +4,7 @@
 
 #include "util/filesystem.hpp"
 
-namespace AO {
+namespace AOO {
     typedef uint8_t u8;
     using std::string, std::vector, Util::OS::readFile;
 

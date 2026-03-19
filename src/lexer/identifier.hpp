@@ -6,7 +6,7 @@
 #include "stringLiteral.hpp"
 #include "tokens.hpp"
 
-namespace AO::Lexer {
+namespace AOO::Lexer {
     typedef uint64_t u64;
     using Util::equals, Util::isValidIdentifierStart, Util::isValidIdentifierPart;
     using enum TokenType;

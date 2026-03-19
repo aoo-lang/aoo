@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-namespace AO::AST {
+namespace AOO::AST {
 
     struct GenericParameterType {
         

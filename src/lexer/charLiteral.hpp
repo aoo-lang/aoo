@@ -6,8 +6,9 @@
 #include "../currentFile.hpp"
 #include "../util/string.hpp"
 #include "tokens.hpp"
+#include "utils.hpp"
 
-namespace AO::Lexer {
+namespace AOO::Lexer {
     typedef uint8_t u8;
     typedef uint16_t u16;
     typedef uint32_t u32;
@@ -29,14 +30,10 @@ namespace AO::Lexer {
             cursor++;
             return {.type = GN_CHAR, .strType = NotAString, .u8Payload = static_cast<u8>(secondChar - '0')};
         }
-        //Invalid. Greedy until ' and error out.
+        //Invalid.
         else {
             cursor++;
-            const u64 origin = cursor - 4;
-            while (cursor < fileContent.size() && fileContent[cursor] != '\'') cursor++;
-            //If we stopped because we found a closing ', consume it.
-            if (cursor < fileContent.size()) cursor++;
-            return {.type = MISC_ERROR, .strType = NotAString, .payload = span(fileContent.data() + origin, cursor - origin)};
+            return greedyUntilAndErrorOut(cursor, '\'', cursor - 4);
         }
 
         //To the third octal digit's place.
@@ -54,11 +51,7 @@ namespace AO::Lexer {
             else {
                 //More than three octal digits is not allowed, we need to greedy until ' and error out.
                 cursor += 2;
-                const u64 origin = cursor - 6;
-                while(cursor < fileContent.size() && fileContent[cursor] != '\'') cursor++;
-                //If we stopped because we found a closing ', consume it.
-                if (fileContent[cursor] == '\'') cursor++;
-                return {.type = MISC_ERROR, .strType = NotAString, .payload = span(fileContent.data() + origin, cursor - origin)};
+                return greedyUntilAndErrorOut(cursor, '\'', cursor - 6);
             }
         }
         //Stop with two digits.
@@ -70,11 +63,7 @@ namespace AO::Lexer {
         //Invalid. Greedy until ' and error out.
         else {
             cursor++;
-            const u64 origin = cursor - 5;
-            while (cursor < fileContent.size() && fileContent[cursor] != '\'') cursor++;
-            //If we stopped because we found a closing ', consume it.
-            if (cursor < fileContent.size()) cursor++;
-            return {.type = MISC_ERROR, .strType = NotAString, .payload = span(fileContent.data() + origin, cursor - origin)};
+            return greedyUntilAndErrorOut(cursor, '\'', cursor - 5);
         }
     }
 
@@ -101,19 +90,9 @@ namespace AO::Lexer {
                     else if (cursor == origin + 4) return {.type = MISC_ERROR, .strType = NotAString, .payload = span(fileContent.data() + origin, 4)};
                     else return {.type = GN_CHAR, .strType = NotAString, .u8Payload = static_cast<u8>(value)};
                 }
-                else { //Greedy until ' and error out.
-                    while (cursor < fileContent.size() && fileContent[cursor] != '\'') cursor++;
-                    //If we stopped because we found a closing ', consume it.
-                    if (cursor < fileContent.size()) cursor++;
-                    return {.type = MISC_ERROR, .strType = NotAString, .payload = span(fileContent.data() + origin, cursor - origin)};
-                }
+                else return greedyUntilAndErrorOut(cursor, '\'', origin);
             }
-            else /*if (outOfRange)*/ { //Greedy until ' and error out.
-                while (cursor < fileContent.size() && fileContent[cursor] != '\'') cursor++;
-                //If we stopped because we found a closing ', consume it.
-                if (cursor < fileContent.size()) cursor++;
-                return {.type = MISC_ERROR, .strType = NotAString, .payload = span(fileContent.data() + origin, cursor - origin)};
-            }
+            else /*if (outOfRange)*/ return greedyUntilAndErrorOut(cursor, '\'', origin);
         }
         //File ended.
         else return {.type = MISC_ERROR, .strType = NotAString, .payload = span(fileContent.data() + origin, cursor - origin)};
@@ -147,23 +126,15 @@ namespace AO::Lexer {
                     cursor += 4;
                     return {.type = MISC_ERROR, .strType = NotAString, .payload = span(fileContent.data() + cursor - 7, 7)};
                 }
-                //Not ended after 4 hex digits. Greedy until ' and error out.
+                //Not ended after 4 hex digits.
                 else /*if (fileContent[cursor + 4] != '\'')*/ {
                     cursor += 5;
-                    const u64 origin = cursor - 8;
-                    while (cursor < fileContent.size() && fileContent[cursor] != '\'') cursor++;
-                    //If we stopped because we found a closing ', consume it.
-                    if (cursor < fileContent.size()) cursor++;
-                    return {.type = MISC_ERROR, .strType = NotAString, .payload = span(fileContent.data() + origin, cursor - origin)};
+                    return greedyUntilAndErrorOut(cursor, '\'', cursor - 8);
                 }
             }
             else {
                 cursor++;
-                const u64 origin = cursor - 3;
-                while (cursor < fileContent.size() && fileContent[cursor] != '\'') cursor++;
-                //If we stopped because we found a closing ', consume it.
-                if (cursor < fileContent.size()) cursor++;
-                return {.type = MISC_ERROR, .strType = NotAString, .payload = span(fileContent.data() + origin, cursor - origin)};
+                return greedyUntilAndErrorOut(cursor, '\'', cursor - 3);
             }
         }
         else /*if (fileContent[cursor] == 'U')*/ {
@@ -222,23 +193,15 @@ namespace AO::Lexer {
                     cursor += 9;
                     return {.type = MISC_ERROR, .strType = NotAString, .payload = span(fileContent.data() + cursor - 12, 12)};
                 }
-                //Not ended after 4 hex digits. Greedy until ' and error out.
+                //Not ended after 4 hex digits.
                 else /*if (fileContent[cursor + 8] != '\'')*/ {
                     cursor += 9;
-                    const u64 origin = cursor - 12;
-                    while (cursor < fileContent.size() && fileContent[cursor] != '\'') cursor++;
-                    //If we stopped because we found a closing ', consume it.
-                    if (cursor < fileContent.size()) cursor++;
-                    return {.type = MISC_ERROR, .strType = NotAString, .payload = span(fileContent.data() + origin, cursor - origin)};
+                    return greedyUntilAndErrorOut(cursor, '\'', cursor - 12);
                 }
             }
             else {
                 cursor++;
-                const u64 origin = cursor - 3;
-                while (cursor < fileContent.size() && fileContent[cursor] != '\'') cursor++;
-                //If we stopped because we found a closing ', consume it.
-                if (cursor < fileContent.size()) cursor++;
-                return {.type = MISC_ERROR, .strType = NotAString, .payload = span(fileContent.data() + origin, cursor - origin)};
+                return greedyUntilAndErrorOut(cursor, '\'', cursor - 3);
             }
         }
     }
@@ -251,11 +214,7 @@ namespace AO::Lexer {
         }
         else {
             cursor++;
-            const u64 origin = cursor - 4;
-            while (cursor < fileContent.size() && fileContent[cursor] != '\'') cursor++;
-            //If we stopped because we found a closing ', consume it.
-            if (cursor < fileContent.size()) cursor++;
-            return {.type = MISC_ERROR, .strType = NotAString, .payload = span(fileContent.data() + origin, cursor - origin)};
+            return greedyUntilAndErrorOut(cursor, '\'', cursor - 4);
         }
     }
 
@@ -286,11 +245,7 @@ namespace AO::Lexer {
                     //Greedy until ' and error out.
                     default: {
                         cursor += 3;
-                        const u64 origin = cursor - 3;
-                        while (cursor < fileContent.size() && fileContent[cursor] != '\'') cursor++;
-                        //If we stopped because we found a closing ', consume it.
-                        if (cursor < fileContent.size()) cursor++;
-                        return {.type = MISC_ERROR, .strType = NotAString, .payload = span(fileContent.data() + origin, cursor - origin)};
+                        return greedyUntilAndErrorOut(cursor, '\'', cursor - 3);
                     }
                 }
             }

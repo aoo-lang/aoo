@@ -1,5 +1,5 @@
 ﻿#pragma once
 
-namespace AO::Parser {
+namespace AOO::Parser {
     
 }

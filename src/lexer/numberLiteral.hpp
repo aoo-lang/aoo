@@ -4,7 +4,7 @@
 #include "../util/string.hpp"
 #include "tokens.hpp"
 
-namespace AO::Lexer {
+namespace AOO::Lexer {
     typedef uint64_t u64;
     using Util::isWhitespace;
     using enum TokenType;
