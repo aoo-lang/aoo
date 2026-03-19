@@ -5,7 +5,7 @@ namespace AOO {
     using std::string;
 
     struct Arguments {
-        bool printLexerTokens;
+        bool printLexerTokens, debugMode;
         string inputFile, printLexerTokensFile;
     };
 }

@@ -8,31 +8,29 @@ namespace AOO::Lexer {
     typedef uint64_t u64;
     using Util::isWhitespace;
     using enum TokenType;
-    using enum StringType;
 
     [[nodiscard]] inline Token decimal(u64& cursor, u64 start) noexcept {
-        return {.type = MISC_ERROR, .strType = NotAString, .payload = {}};
+        return {.type = MISC_ERROR, .payload = {}};
     }
 
     [[nodiscard]] inline Token hex(u64& cursor, u64 start) noexcept {
-        return {.type = MISC_ERROR, .strType = NotAString, .payload = {}};
+        return {.type = MISC_ERROR, .payload = {}};
     }
 
     [[nodiscard]] inline Token binary(u64& cursor, u64 start) noexcept {
-        return {.type = MISC_ERROR, .strType = NotAString, .payload = {}};
+        return {.type = MISC_ERROR, .payload = {}};
     }
 
     [[nodiscard]] inline Token octal(u64& cursor, u64 start) noexcept {
-        return {.type = MISC_ERROR, .strType = NotAString, .payload = {}};
+        return {.type = MISC_ERROR, .payload = {}};
     }
 
     [[nodiscard]] inline Token getNumberLiteral(u64& cursor) noexcept {
         using enum TokenType;
-        using enum StringType;
 
         //Temp
         cursor++;
-        return {.type = GN_U8, .strType = NotAString, .u8Payload = 0};
+        return {.type = GN_U8, .u8Payload = 0};
         //End Temp
 
         const u64 start = cursor;
@@ -51,7 +49,7 @@ namespace AOO::Lexer {
                 return octal(cursor, start);
             }
             //We just reject leading zeros altogether so we don't need to worry about the octal hobby.
-            else return {.type = MISC_ERROR, .strType = NotAString, .payload = {}};
+            else return {.type = MISC_ERROR, .payload = {}};
         }
         return decimal(cursor, start);
     }

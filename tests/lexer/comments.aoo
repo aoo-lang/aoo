@@ -1,6 +1,5 @@
 /*
-Test comments!!
-*/
+Test comments!!**/
 
 /*     */
 
@@ -12,9 +11,9 @@ import std:io:{print, println};
 ** //
   */
 i32 main() {
-    print("Hello, world!\n\n");
-    for _ i = 0..10 {
+    pr/*should be split*/int("Hello, world!\n\n");
+    for _ i = 0..10 { //\n\n\n\n\r\n
         println(f"{}", i);
-    }
+  /*\r\n*/  }
     return 0;
-}
+}/*

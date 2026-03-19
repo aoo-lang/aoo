@@ -11,11 +11,13 @@ Also a semester "homework" for *Principles of Compiler* to *"impress"* my teache
 1. Compiled.
 2. Statically typed.
 3. Simple. AOO has less keywords than C89.
-4. "Better" OOP by: No constructor; No inheritance; No virtual methods; Independent Interface definition.
+4. "Better" OOP by: No constructor; No inheritance; No virtual methods; Independent interface definition.
 5. Modules, not header files.
-6. No any memory safety attempts because the true safety is in programmers' minds. Pointers exist and are the only way to store references.
-7. Variables are constant by default.
-8. Parameters are classified by mutability, not value/reference. Passing by value/reference is seamless by default and can be enforced.
+6. No any memory safety attempts because the true safety is in programmers' minds.
+7. Variables are constant by default. Append `!` to type name to create mutable variables. 
+8. Parameters are classified by mutability, not value/reference. Immutable parameters is automatically determined to be passed by value/reference but can also be specified. Mutable parameters are always passed by reference.
+9. `=` always moves the right-hand side and changes its type to `?`(`void`) to prevent further usage. Implement `Copy` trait for shallow copy, and `Clone` trait for deep clone.
+10. Pointer types are not hidden and it's the only way to explicitly reference to another object. No more reference rabbit holes. And also, `?*`(`void*`) exists.
 
 ## Examples
 

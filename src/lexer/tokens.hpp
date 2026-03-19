@@ -29,19 +29,13 @@ namespace AOO::Lexer {
         KW_BREAK,
         KW_CONTINUE,
         KW_IN,
-        KW_VAL,
-        KW_REF,
         KW_PUBLIC,
         KW_PRIVATE,
-        KW_SELF,
+        KW_AS,
         KW_OP,
-        KW_SIZEOF,
-
-        RT_U8,  RT_U16, RT_U32, RT_U64,
-        RT_I8,  RT_I16, RT_I32, RT_I64,
-        RT_F32, RT_F64, RT_BOOL,
-
-        RV_TRUE, RV_FALSE,
+        KW_VAL,
+        KW_REF,
+        KW_SELF,
 
         OP_PLUS,                    // +
         OP_DOUBLE_PLUS,             // ++
@@ -81,6 +75,8 @@ namespace AOO::Lexer {
 
         OP_CARET,                   // ^
         OP_CARET_EQUAL,             // ^=
+
+        OP_TILDE,                   // ~
 
         OP_BANG,                    // !
         OP_DOUBLE_BANG,             // !!
@@ -142,26 +138,13 @@ namespace AOO::Lexer {
             case KW_BREAK: return "KW_BREAK";
             case KW_CONTINUE: return "KW_CONTINUE";
             case KW_IN: return "KW_IN";
-            case KW_VAL: return "KW_VAL";
-            case KW_REF: return "KW_REF";
             case KW_PUBLIC: return "KW_PUBLIC";
             case KW_PRIVATE: return "KW_PRIVATE";
-            case KW_SELF: return "KW_SELF";
+            case KW_AS: return "KW_AS";
             case KW_OP: return "KW_OP";
-            case KW_SIZEOF: return "KW_SIZEOF";
-            case RT_U8: return "RT_U8";
-            case RT_U16: return "RT_U16";
-            case RT_U32: return "RT_U32";
-            case RT_U64: return "RT_U64";
-            case RT_I8: return "RT_I8";
-            case RT_I16: return "RT_I16";
-            case RT_I32: return "RT_I32";
-            case RT_I64: return "RT_I64";
-            case RT_F32: return "RT_F32";
-            case RT_F64: return "RT_F64";
-            case RT_BOOL: return "RT_BOOL";
-            case RV_TRUE: return "RV_TRUE";
-            case RV_FALSE: return "RV_FALSE";
+            case KW_VAL: return "KW_VAL";
+            case KW_REF: return "KW_REF";
+            case KW_SELF: return "KW_SELF";
             case OP_PLUS: return "OP_PLUS";
             case OP_DOUBLE_PLUS: return "OP_DOUBLE_PLUS";
             case OP_PLUS_EQUAL: return "OP_PLUS_EQUAL";
@@ -191,6 +174,7 @@ namespace AOO::Lexer {
             case OP_AMPERSAND_EQUAL: return "OP_AMPERSAND_EQUAL";
             case OP_CARET: return "OP_CARET";
             case OP_CARET_EQUAL: return "OP_CARET_EQUAL";
+            case OP_TILDE: return "OP_TILDE";
             case OP_BANG: return "OP_BANG";
             case OP_DOUBLE_BANG: return "OP_DOUBLE_BANG";
             case OP_EQUAL: return "OP_EQUAL";
@@ -262,7 +246,7 @@ namespace AOO::Lexer {
 
     struct Token {
         TokenType type;
-        StringType strType;
+        StringType strType{StringType::NotAString};
         union {
             span<const u8> payload;
             u8 u8Payload;
@@ -285,17 +269,18 @@ namespace AOO::Lexer {
         if (token.strType != StringType::NotAString) os << "StringType: " << token.strType << ", ";
         os << "\"";
         switch (token.type) {
-            //We need to work around the character printing of 8-bit integers.
-            case GN_U8: case GN_CHAR: os << token.u8Payload; break;
-            case GN_U16: os << token.u16Payload;             break;
-            case GN_U32: os << token.u32Payload;             break;
-            case GN_U64: os << token.u64Payload;             break;
-            case GN_I8:  os << token.i8Payload;              break;
-            case GN_I16: os << token.i16Payload;             break;
-            case GN_I32: os << token.i32Payload;             break;
-            case GN_I64: os << token.i64Payload;             break;
-            case GN_F32: os << token.f32Payload;             break;
-            case GN_F64: os << token.f64Payload;             break;
+            //We cast to u32 here to print the number instead of the character.
+            case GN_U8:   os << static_cast<u32>(token.u8Payload); break;
+            case GN_CHAR: os << token.u8Payload;                   break;
+            case GN_U16:  os << token.u16Payload;                  break;
+            case GN_U32:  os << token.u32Payload;                  break;
+            case GN_U64:  os << token.u64Payload;                  break;
+            case GN_I8:   os << token.i8Payload;                   break;
+            case GN_I16:  os << token.i16Payload;                  break;
+            case GN_I32:  os << token.i32Payload;                  break;
+            case GN_I64:  os << token.i64Payload;                  break;
+            case GN_F32:  os << token.f32Payload;                  break;
+            case GN_F64:  os << token.f64Payload;                  break;
             default: os << string(token.payload.begin(), token.payload.end()); break;
         }
         os << '"';

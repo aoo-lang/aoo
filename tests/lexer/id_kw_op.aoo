@@ -1,0 +1,11 @@
+﻿
+import export module type trait enum if else for match return break continue in public private as op val ref self
+
+importexport module  _type trait1
+
++ ++ += - -- -= * *= / /= % %= << <<= >> >>= | |= & &= ^ ^= ~ == != > >= < <= || && ! ?: :: & * ! !! _ ? ?? 'a: => . : = [] .. ... * -> 'f' "g" b"g" c"g" r"g" f"g" //line comments
+/*
+
+comment
+
+*/
