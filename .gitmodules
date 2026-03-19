@@ -1,3 +1,43 @@
+[submodule "libs/boost/assert"]
+	path = libs/boost/assert
+	url = https://github.com/boostorg/assert
+
+[submodule "libs/boost/config"]
+	path = libs/boost/config
+	url = https://github.com/boostorg/config
+
+[submodule "libs/boost/container_hash"]
+	path = libs/boost/container_hash
+	url = https://github.com/boostorg/container_hash
+
+[submodule "libs/boost/core"]
+	path = libs/boost/core
+	url = https://github.com/boostorg/core
+
+[submodule "libs/boost/describe"]
+	path = libs/boost/describe
+	url = https://github.com/boostorg/describe
+
+[submodule "libs/boost/mp11"]
+	path = libs/boost/mp11
+	url = https://github.com/boostorg/mp11
+
+[submodule "libs/boost/predef"]
+	path = libs/boost/predef
+	url = https://github.com/boostorg/predef
+
+[submodule "libs/boost/static_assert"]
+	path = libs/boost/static_assert
+	url = https://github.com/boostorg/static_assert
+
+[submodule "libs/boost/throw_exception"]
+	path = libs/boost/throw_exception
+	url = https://github.com/boostorg/throw_exception
+
+[submodule "libs/boost/unordered"]
+	path = libs/boost/unordered
+	url = https://github.com/boostorg/unordered
+
 [submodule "libs/cli11"]
 	path = libs/cli11
 	url = https://github.com/CLIUtils/CLI11

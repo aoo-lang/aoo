@@ -84,6 +84,17 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE
 
 #------------Inclusions------------
 target_include_directories(${PROJECT_NAME} PRIVATE
+    "libs/boost/assert/include"
+    "libs/boost/config/include"
+    "libs/boost/container_hash/include"
+    "libs/boost/core/include"
+    "libs/boost/describe/include"
+    "libs/boost/mp11/include"
+    "libs/boost/predef/include"
+    "libs/boost/static_assert/include"
+    "libs/boost/throw_exception/include"
+    "libs/boost/unordered/include"
+
     "libs/cli11/include"
 )
 #----------------------------------

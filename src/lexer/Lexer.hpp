@@ -1,6 +1,7 @@
 ﻿#pragma once
-#include <string>
+#include <iostream>
 #include <span>
+#include <string>
 
 #include "../currentFile.hpp"
 #include "../util/string.hpp"
@@ -12,7 +13,7 @@
 
 namespace AO::Lexer {
     typedef uint64_t u64;
-    using std::string, std::span, Util::isWhitespace;
+    using std::cerr, std::string, std::span, Util::isWhitespace;
 
     namespace detail {
         inline u64 cursor{0};
@@ -31,6 +32,10 @@ namespace AO::Lexer {
         using enum StringType;
         using AO::fileContent;
         if (cursor == fileContent.size()) return {.type = MISC_EOF, .strType = NotAString, .payload = {}};
+        else if (cursor > fileContent.size()) {
+            cerr << "How did we get here?\n";
+            return {.type = MISC_EOF, .strType = NotAString, .payload = {}};
+        }
         if (isWhitespace(fileContent[cursor])) {
             const u64 start = cursor;
             while (cursor < fileContent.size() && isWhitespace(fileContent[cursor])) cursor++;
@@ -288,9 +293,9 @@ namespace AO::Lexer {
             case ']':
                 cursor++;
                 return {.type = CH_RIGHT_BRACKET, .strType = NotAString, .payload = {}};
-            case '"':       return getStringLiteral(cursor);
-            case '0'...'9': return getNumberLiteral(cursor);
-            default:        return getIdentifier(cursor);
+            case '"': return getStringLiteral(cursor);
+            case '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9': return getNumberLiteral(cursor);
+            default: return getIdentifier(cursor);
         }
     }
 

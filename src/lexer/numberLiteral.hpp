@@ -8,21 +8,22 @@ namespace AO::Lexer {
     typedef uint64_t u64;
     using Util::isWhitespace;
     using enum TokenType;
+    using enum StringType;
 
     [[nodiscard]] inline Token decimal(u64& cursor, u64 start) noexcept {
-        
+        return {.type = MISC_ERROR, .strType = NotAString, .payload = {}};
     }
 
     [[nodiscard]] inline Token hex(u64& cursor, u64 start) noexcept {
-
+        return {.type = MISC_ERROR, .strType = NotAString, .payload = {}};
     }
 
     [[nodiscard]] inline Token binary(u64& cursor, u64 start) noexcept {
-
+        return {.type = MISC_ERROR, .strType = NotAString, .payload = {}};
     }
 
     [[nodiscard]] inline Token octal(u64& cursor, u64 start) noexcept {
-
+        return {.type = MISC_ERROR, .strType = NotAString, .payload = {}};
     }
 
     [[nodiscard]] inline Token getNumberLiteral(u64& cursor) noexcept {

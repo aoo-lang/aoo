@@ -1,10 +1,11 @@
 ﻿#include <iostream>
 
+#include "boot/parseArguments.hpp"
+#include "debug/lexerTokens.hpp"
 #include "currentFile.hpp"
 #include "lexer/Lexer.hpp"
-#include "boot/parseArguments.hpp"
 
-using std::cout, std::cerr;
+using std::cerr;
 
 int main(int argc, char** argv) {
     const auto args = AO::parseArguments(argc, argv);
@@ -14,6 +15,6 @@ int main(int argc, char** argv) {
     }
     AO::Lexer::init();
     AO::Lexer::parse();
-    if (args.printTokens) for (const auto& token : AO::Lexer::tokens) cout << token << '\n';
+    AO::Debug::printLexerTokens(args);
     return 0;
 }

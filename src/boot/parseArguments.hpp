@@ -1,17 +1,12 @@
 ﻿#pragma once
 #include <iostream>
-#include <string>
 #include <CLI/CLI.hpp>
 
 #include "../meta.hpp"
+#include "Arguments.hpp"
 
 namespace AO {
     using std::cout, std::cerr, std::string, CLI::App, CLI::CallForHelp, CLI::CallForVersion, CLI::ParseError;
-
-    struct Arguments {
-        bool printTokens, printAST;
-        string inputFile;
-    };
 
     [[nodiscard]] inline Arguments parseArguments(int argc, char** argv) noexcept {
         App app;
@@ -26,6 +21,8 @@ namespace AO {
 
         bool printTokens = false;
         app.add_flag("-pt", printTokens, "Print tokens after lexing.");
+        string printTokensFile;
+        app.add_option("-pt-f", printTokensFile, "Print tokens to a file instead of stdout.");
 
         bool printAST = false;
         app.add_flag("-pa", printAST, "Print AST after parsing.");
@@ -49,7 +46,8 @@ namespace AO {
         return {
             .printTokens = printTokens,
             .printAST = printAST,
-            .inputFile = inputFile
+            .inputFile = inputFile,
+            .printTokensFile = printTokensFile,
         };
     }
 }

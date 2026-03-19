@@ -281,21 +281,24 @@ namespace AO::Lexer {
     inline ostream& operator<<(ostream& os, const Token& token) {
         using enum TokenType;
 
-        os << "Token: " << token.type << ",  " << token.strType << ",  \"";
+        os << "Token: " << token.type << ", ";
+        if (token.strType != StringType::NotAString) os << "StringType: " << token.strType << ", ";
+        os << "\"";
         switch (token.type) {
-            case GN_U8:  os << token.u8Payload;  break;
-            case GN_U16: os << token.u16Payload; break;
-            case GN_U32: os << token.u32Payload; break;
-            case GN_U64: os << token.u64Payload; break;
-            case GN_I8:  os << token.i8Payload;  break;
-            case GN_I16: os << token.i16Payload; break;
-            case GN_I32: os << token.i32Payload; break;
-            case GN_I64: os << token.i64Payload; break;
-            case GN_F32: os << token.f32Payload; break;
-            case GN_F64: os << token.f64Payload; break;
-            case GN_CHAR: os << token.u8Payload; break;
+            //We need to work around the character printing of 8-bit integers.
+            case GN_U8: case GN_CHAR: os << token.u8Payload; break;
+            case GN_U16: os << token.u16Payload;             break;
+            case GN_U32: os << token.u32Payload;             break;
+            case GN_U64: os << token.u64Payload;             break;
+            case GN_I8:  os << token.i8Payload;              break;
+            case GN_I16: os << token.i16Payload;             break;
+            case GN_I32: os << token.i32Payload;             break;
+            case GN_I64: os << token.i64Payload;             break;
+            case GN_F32: os << token.f32Payload;             break;
+            case GN_F64: os << token.f64Payload;             break;
             default: os << string(token.payload.begin(), token.payload.end()); break;
         }
+        os << '"';
         return os;
     }
 }

@@ -1,0 +1,14 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "AO Apostrophe",
+            "program": "${command:cmake.launchTargetPath}",
+            "cwd": "${workspaceFolder}",
+            "args": ["-pt", "-pt-f", "1.txt", "tests/apostrophe.ao"],
+            "stopOnEntry": false
+        }
+    ]
+}

@@ -4,7 +4,7 @@ Thumbs.db
 [Dd]esktop.ini
 
 # Build system/IDE generated files/folders
-.vscode/
+#.vscode/
 .vs/
 .VSCodeCounter/
 *.suo
@@ -24,12 +24,3 @@ build/
 out/
 !*/out/
 cmake-build-*/
-
-# Test-purpose files/folders
-saves/
-!*/saves/
-packs/
-!*/packs/
-test/
-!*/test/
-/options.json
