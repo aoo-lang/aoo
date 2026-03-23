@@ -31,16 +31,16 @@ namespace AOO::Lexer {
         using enum TokenType;
         using AOO::fileContent;
 
-        if (cursor == fileContent.size()) return {.type = MISC_EOF, .payload = {}};
+        if (cursor == fileContent.size()) return {.type = MISC_EOF};
         else if (cursor > fileContent.size()) {
             cerr << "How did we get here?\n";
-            return {.type = MISC_EOF, .payload = {}};
+            return {.type = MISC_EOF};
         }
         if (isWhitespace(fileContent[cursor])) {
             const u64 start = cursor;
             while (cursor < fileContent.size() && isWhitespace(fileContent[cursor])) cursor++;
             //note: We don't include the whitespace payload in the token to prettify the lexer output. And we probably don't need it for anything else either, so this is fine.
-            return {.type = MISC_WHITESPACE, .payload = {}};
+            return {.type = MISC_WHITESPACE};
         }
         switch (fileContent[cursor]) {
             //BOM mark `EF BB BF`
@@ -57,67 +57,68 @@ namespace AOO::Lexer {
                 if (cursor + 1 < fileContent.size()) {
                     if (fileContent[cursor + 1] == '+') {
                         cursor += 2;
-                        return {.type = OP_DOUBLE_PLUS, .payload = {}};
+                        return {.type = OP_DOUBLE_PLUS};
                     }
                     else if (fileContent[cursor + 1] == '=') {
                         cursor += 2;
-                        return {.type = OP_PLUS_EQUAL, .payload = {}};
+                        return {.type = OP_PLUS_EQUAL};
                     }
                 }
                 cursor++;
-                return {.type = OP_PLUS, .payload = {}};
+                return {.type = OP_PLUS};
             case '-':
                 if (cursor + 1 < fileContent.size()) {
                     if (fileContent[cursor + 1] == '-') {
                         cursor += 2;
-                        return {.type = OP_DOUBLE_DASH, .payload = {}};
+                        return {.type = OP_DOUBLE_DASH};
                     }
                     else if (fileContent[cursor + 1] == '=') {
                         cursor += 2;
-                        return {.type = OP_DASH_EQUAL, .payload = {}};
+                        return {.type = OP_DASH_EQUAL};
                     }
                     else if (fileContent[cursor + 1] == '>') {
                         cursor += 2;
-                        return {.type = OP_DASH_GREATER, .payload = {}};
+                        return {.type = OP_DASH_GREATER};
                     }
                 }
                 cursor++;
-                return {.type = OP_DASH, .payload = {}};
+                return {.type = OP_DASH};
             case '*':
                 if (cursor + 1 < fileContent.size()) {
                     if (fileContent[cursor + 1] == '=') {
                         cursor += 2;
-                        return {.type = OP_STAR_EQUAL, .payload = {}};
+                        return {.type = OP_STAR_EQUAL};
                     }
                     else if (fileContent[cursor + 1] == '*') {
                         cursor += 2;
-                        return {.type = OP_DOUBLE_STAR, .payload = {}};
+                        return {.type = OP_DOUBLE_STAR};
                     }
                 }
                 cursor++;
-                return {.type = OP_STAR, .payload = {}};
+                return {.type = OP_STAR};
             case '/':
                 if (cursor + 1 < fileContent.size()) {
                     if (fileContent[cursor + 1] == '=') {
                         cursor += 2;
-                        return {.type = OP_SLASH_EQUAL, .payload = {}};
+                        return {.type = OP_SLASH_EQUAL};
                     }
                     else if (fileContent[cursor + 1] == '/') {
                         //Line comment, skip until end of line or end of file
                         cursor += 2;
                         while (cursor < fileContent.size() && fileContent[cursor] != '\n') cursor++;
-                        if (cursor == fileContent.size()) return {.type = MISC_EOF, .payload = {}};
+                        if (cursor == fileContent.size()) return {.type = MISC_EOF};
                         else return getNextToken();
                     }
                     else if (fileContent[cursor + 1] == '*') {
                         //Multiline comment, skip until closing */
                         cursor += 2;
+                        const u64 origin = cursor - 2;
                         while (cursor + 1 < fileContent.size() && !(fileContent[cursor] == '*' && fileContent[cursor + 1] == '/')) cursor++;
                         if (cursor + 1 == fileContent.size()) {
                             //Unterminated multiline comment
-                            //note: We advance the cursor to the end of the file to prevent reading the last character as a valid token in the next call.
+                            //note: The file has ended, but comments don't have a token type and we need to return something, so we're forced to just return EOF.
                             cursor++;
-                            return {.type = MISC_ERROR, .payload = {}};
+                            return {.type = MISC_EOF};
                         }
                         else {
                             cursor += 2;
@@ -126,178 +127,179 @@ namespace AOO::Lexer {
                     }
                 }
                 cursor++;
-                return {.type = OP_SLASH, .payload = {}};
+                return {.type = OP_SLASH};
             case '%':
                 if (cursor + 1 < fileContent.size() && fileContent[cursor + 1] == '=') {
                     cursor += 2;
-                    return {.type = OP_PERCENT_EQUAL, .payload = {}};
+                    return {.type = OP_PERCENT_EQUAL};
                 }
                 cursor++;
-                return {.type = OP_PERCENT, .payload = {}};
+                return {.type = OP_PERCENT};
             case '<':
                 if (cursor + 1 < fileContent.size()) {
                     if (fileContent[cursor + 1] == '=') {
                         cursor += 2;
-                        return {.type = OP_LESS_EQUAL, .payload = {}};
+                        return {.type = OP_LESS_EQUAL};
                     }
                     else if (fileContent[cursor + 1] == '<') {
                         if (cursor + 2 < fileContent.size() && fileContent[cursor + 2] == '=') {
                             cursor += 3;
-                            return {.type = OP_DOUBLE_LESS_EQUAL, .payload = {}};
+                            return {.type = OP_DOUBLE_LESS_EQUAL};
                         }
                         else {
                             cursor += 2;
-                            return {.type = OP_DOUBLE_LESS, .payload = {}};
+                            return {.type = OP_DOUBLE_LESS};
                         }
                     }
                 }
                 cursor++;
-                return {.type = OP_LESS, .payload = {}};
+                return {.type = OP_LESS};
             case '>':
                 if (cursor + 1 < fileContent.size()) {
                     if (fileContent[cursor + 1] == '=') {
                         cursor += 2;
-                        return {.type = OP_GREATER_EQUAL, .payload = {}};
+                        return {.type = OP_GREATER_EQUAL};
                     }
                     else if (fileContent[cursor + 1] == '>') {
                         if (cursor + 2 < fileContent.size() && fileContent[cursor + 2] == '=') {
                             cursor += 3;
-                            return {.type = OP_DOUBLE_GREATER_EQUAL, .payload = {}};
+                            return {.type = OP_DOUBLE_GREATER_EQUAL};
                         }
                         else {
                             cursor += 2;
-                            return {.type = OP_DOUBLE_GREATER, .payload = {}};
+                            return {.type = OP_DOUBLE_GREATER};
                         }
                     }
                 }
                 cursor++;
-                return {.type = OP_GREATER, .payload = {}};
+                return {.type = OP_GREATER};
             case '|':
                 if (cursor + 1 < fileContent.size()) {
                     if (fileContent[cursor + 1] == '|') {
                         cursor += 2;
-                        return {.type = OP_DOUBLE_BAR, .payload = {}};
+                        return {.type = OP_DOUBLE_BAR};
                     }
                     else if (fileContent[cursor + 1] == '=') {
                         cursor += 2;
-                        return {.type = OP_BAR_EQUAL, .payload = {}};
+                        return {.type = OP_BAR_EQUAL};
                     }
                 }
                 cursor++;
-                return {.type = OP_BAR, .payload = {}};
+                return {.type = OP_BAR};
             case '&':
                 if (cursor + 1 < fileContent.size()) {
                     if (fileContent[cursor + 1] == '&') {
                         cursor += 2;
-                        return {.type = OP_DOUBLE_AMPERSAND, .payload = {}};
+                        return {.type = OP_DOUBLE_AMPERSAND};
                     }
                     else if (fileContent[cursor + 1] == '=') {
                         cursor += 2;
-                        return {.type = OP_AMPERSAND_EQUAL, .payload = {}};
+                        return {.type = OP_AMPERSAND_EQUAL};
                     }
                 }
                 cursor++;
-                return {.type = OP_AMPERSAND, .payload = {}};
+                return {.type = OP_AMPERSAND};
             case '^':
                 if (cursor + 1 < fileContent.size() && fileContent[cursor + 1] == '=') {
                     cursor += 2;
-                    return {.type = OP_CARET_EQUAL, .payload = {}};
+                    return {.type = OP_CARET_EQUAL};
                 }
                 cursor++;
-                return {.type = OP_CARET, .payload = {}};
+                return {.type = OP_CARET};
             case '~':
                 cursor++;
-                return {.type = OP_TILDE, .payload = {}};
+                return {.type = OP_TILDE};
             case '!':
                 if (cursor + 1 < fileContent.size()) {
                     if (fileContent[cursor + 1] == '!') {
                         cursor += 2;
-                        return {.type = OP_DOUBLE_BANG, .payload = {}};
+                        return {.type = OP_DOUBLE_BANG};
                     }
                     else if (fileContent[cursor + 1] == '=') {
                         cursor += 2;
-                        return {.type = OP_BANG_EQUAL, .payload = {}};
+                        return {.type = OP_BANG_EQUAL};
                     }
                 }
                 cursor++;
-                return {.type = OP_BANG, .payload = {}};
+                return {.type = OP_BANG};
             case '=':
                 if (cursor + 1 < fileContent.size()) {
                     if (fileContent[cursor + 1] == '=') {
                         cursor += 2;
-                        return {.type = OP_DOUBLE_EQUAL, .payload = {}};
+                        return {.type = OP_DOUBLE_EQUAL};
                     }
                     else if (fileContent[cursor + 1] == '>') {
                         cursor += 2;
-                        return {.type = OP_EQUAL_GREATER, .payload = {}};
+                        return {.type = OP_EQUAL_GREATER};
                     }
                 }
                 cursor++;
-                return {.type = OP_EQUAL, .payload = {}};
+                return {.type = OP_EQUAL};
             case '?':
                 if (cursor + 1 < fileContent.size()) {
                     if (fileContent[cursor + 1] == '?') {
                         cursor += 2;
-                        return {.type = OP_DOUBLE_QUESTION, .payload = {}};
+                        return {.type = OP_DOUBLE_QUESTION};
                     }
                     else if (fileContent[cursor + 1] == ':') {
                         cursor += 2;
-                        return {.type = OP_QUESTION_COLON, .payload = {}};
+                        return {.type = OP_QUESTION_COLON};
                     }
                 }
                 cursor++;
-                return {.type = OP_QUESTION, .payload = {}};
+                return {.type = OP_QUESTION};
             case ':':
                 if (cursor + 1 < fileContent.size() && fileContent[cursor + 1] == ':') {
                     cursor += 2;
-                    return {.type = OP_DOUBLE_COLON, .payload = {}};
+                    return {.type = OP_DOUBLE_COLON};
                 }
                 cursor++;
-                return {.type = CH_COLON, .payload = {}};
+                return {.type = CH_COLON};
             case '.':
                 if (cursor + 1 < fileContent.size() && fileContent[cursor + 1] == '.') {
                     if (cursor + 2 < fileContent.size() && fileContent[cursor + 2] == '.') {
                         cursor += 3;
-                        return {.type = OP_TRIPLE_PERIOD, .payload = {}};
+                        return {.type = OP_TRIPLE_PERIOD};
                     }
                     else {
                         cursor += 2;
-                        return {.type = OP_DOUBLE_PERIOD, .payload = {}};
+                        return {.type = OP_DOUBLE_PERIOD};
                     }
                 }
                 cursor++;
-                return {.type = CH_PERIOD, .payload = {}};
+                return {.type = CH_PERIOD};
             case ';':
                 cursor++;
-                return {.type = CH_SEMICOLON, .payload = {}};
+                return {.type = CH_SEMICOLON};
             // We can't just take underscores now because they can be valid identifiers, so we handle them in getIdentifier() instead.
             //case '_':
             //    cursor++;
-            //    return {.type = CH_UNDERSCORE, .payload = {}};
+            //    return {.type = CH_UNDERSCORE};
             case ',':
                 cursor++;
-                return {.type = CH_COMMA, .payload = {}};
+                return {.type = CH_COMMA};
             case '\'': return getCharLiteral(cursor);
             case '(':
                 cursor++;
-                return {.type = CH_LEFT_PAREN, .payload = {}};
+                return {.type = CH_LEFT_PAREN};
             case ')':
                 cursor++;
-                return {.type = CH_RIGHT_PAREN, .payload = {}};
+                return {.type = CH_RIGHT_PAREN};
             case '{':
                 cursor++;
-                return {.type = CH_LEFT_BRACE, .payload = {}};
+                return {.type = CH_LEFT_BRACE};
             case '}':
                 cursor++;
-                return {.type = CH_RIGHT_BRACE, .payload = {}};
+                return {.type = CH_RIGHT_BRACE};
             case '[':
                 cursor++;
-                return {.type = CH_LEFT_BRACKET, .payload = {}};
+                return {.type = CH_LEFT_BRACKET};
             case ']':
                 cursor++;
-                return {.type = CH_RIGHT_BRACKET, .payload = {}};
+                return {.type = CH_RIGHT_BRACKET};
             case '"': return getStringLiteral(cursor);
-            case '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9': return getNumberLiteral(cursor);
+            case '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9':
+                return getNumberLiteral(cursor);
             case 'b': case 'c': case 'r': case 'f':
                 if (cursor + 1 < fileContent.size() && fileContent[cursor + 1] == '"') return getStringLiteral(cursor);
                 else [[fallthrough]];

@@ -1,20 +1,25 @@
 ﻿#pragma once
+#include <utility>
 
 #include "../currentFile.hpp"
 #include "tokens.hpp"
 
 namespace AOO::Lexer {
+    typedef uint8_t u8;
+    using std::to_underlying;
     using enum TokenType;
     using enum StringType;
 
     namespace detail {
         [[nodiscard]] inline Token getStringLiteralTyped(u64& cursor, StringType strType, u64 origin) noexcept {
             cursor++;
+            bool escaped = false;
             while (cursor < fileContent.size()) {
                 cursor++;
-                if (fileContent[cursor] == '"' && fileContent[cursor - 1] != '\\') {
+                if (fileContent[cursor] == '\\' && !escaped) escaped = true;
+                else if (fileContent[cursor] == '"' && fileContent[cursor - 1] != '\\') {
                     cursor++;
-                    return {.type = GN_STRING, .strType = strType, .payload = span(fileContent.data() + origin, cursor - origin)};
+                    return {.type = GN_STRING, .strType = static_cast<StringType>(to_underlying(strType) + (escaped ? 1 : 0)), .payload = span(fileContent.data() + origin, cursor - origin)};
                 }
             }
             //File ended before closing quote.

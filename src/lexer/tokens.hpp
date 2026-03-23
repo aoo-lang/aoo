@@ -225,17 +225,27 @@ namespace AOO::Lexer {
     }
 
     enum struct StringType : u8 {
-        NotAString, Normal, Byte, CStyle, Format, Raw
+        NotAString,
+        Normal,     Normal_Escaped,
+        Byte,       Byte_Escaped,
+        CStyle,     CStyle_Escaped,
+        Format,     Format_Escaped,
+        Raw,        Raw_Escaped
     };
 
     [[nodiscard]] inline const char* stringTypeToString(StringType type) {
         switch (type) {
             case StringType::NotAString: return "NotAString";
             case StringType::Normal: return "Normal";
+            case StringType::Normal_Escaped: return "Normal_Escaped";
             case StringType::Byte: return "Byte";
+            case StringType::Byte_Escaped: return "Byte_Escaped";
             case StringType::CStyle: return "CStyle";
+            case StringType::CStyle_Escaped: return "CStyle_Escaped";
             case StringType::Format: return "Format";
+            case StringType::Format_Escaped: return "Format_Escaped";
             case StringType::Raw: return "Raw";
+            case StringType::Raw_Escaped: return "Raw_Escaped";
         }
     }
 
