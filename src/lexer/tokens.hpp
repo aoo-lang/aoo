@@ -15,6 +15,8 @@ namespace AOO::Lexer {
     using std::span, std::ostream, std::string;
 
     enum struct TokenType : u8 {
+
+        //Keywords
         KW_IMPORT,
         KW_EXPORT,
         KW_MODULE,
@@ -37,6 +39,7 @@ namespace AOO::Lexer {
         KW_REF,
         KW_SELF,
 
+        //Operators
         OP_PLUS,                    // +
         OP_DOUBLE_PLUS,             // ++
         OP_PLUS_EQUAL,              // +=
@@ -95,6 +98,7 @@ namespace AOO::Lexer {
         OP_TRIPLE_PERIOD,           // ...
         OP_DASH_GREATER,            // ->
 
+        //Characters
         CH_SEMICOLON,               // ;
         CH_UNDERSCORE,              // _
         CH_COMMA,                   // ,
@@ -107,15 +111,63 @@ namespace AOO::Lexer {
         CH_LEFT_BRACKET,            // [
         CH_RIGHT_BRACKET,           // ]
 
-        GN_U8,  GN_U16, GN_U32, GN_U64,
-        GN_I8,  GN_I16, GN_I32, GN_I64,
-        GN_F32, GN_F64,
+        //Binary literals
+        GN_BINARY_INT,
+        GN_BINARY_INT_U8,
+        GN_BINARY_INT_U16,
+        GN_BINARY_INT_U32,
+        GN_BINARY_INT_U64,
+        GN_BINARY_INT_I8,
+        GN_BINARY_INT_I16,
+        GN_BINARY_INT_I32,
+        GN_BINARY_INT_I64,
 
+        //Octal literals
+        GN_OCTAL_INT,
+        GN_OCTAL_INT_U8,
+        GN_OCTAL_INT_U16,
+        GN_OCTAL_INT_U32,
+        GN_OCTAL_INT_U64,
+        GN_OCTAL_INT_I8,
+        GN_OCTAL_INT_I16,
+        GN_OCTAL_INT_I32,
+        GN_OCTAL_INT_I64,
+
+        //Decimal literals
+        GN_DECIMAL_INT,
+        GN_DECIMAL_INT_U8,
+        GN_DECIMAL_INT_U16,
+        GN_DECIMAL_INT_U32,
+        GN_DECIMAL_INT_U64,
+        GN_DECIMAL_INT_I8,
+        GN_DECIMAL_INT_I16,
+        GN_DECIMAL_INT_I32,
+        GN_DECIMAL_INT_I64,
+        GN_DECIMAL_FLOAT,
+        GN_DECIMAL_FLOAT_F32,
+        GN_DECIMAL_FLOAT_F64,
+
+        //Hexadecimal literals
+        GN_HEX_INT,
+        GN_HEX_INT_U8,
+        GN_HEX_INT_U16,
+        GN_HEX_INT_U32,
+        GN_HEX_INT_U64,
+        GN_HEX_INT_I8,
+        GN_HEX_INT_I16,
+        GN_HEX_INT_I32,
+        GN_HEX_INT_I64,
+        GN_HEX_FLOAT,
+        GN_HEX_FLOAT_F32,
+        GN_HEX_FLOAT_F64,
+
+        //Other literals
         GN_CHAR,
         GN_STRING,
         GN_IDENTIFIER,
         GN_LABEL,
 
+        //Misc
         MISC_WHITESPACE,
         MISC_EOF,
         MISC_ERROR
@@ -124,6 +176,7 @@ namespace AOO::Lexer {
     [[nodiscard]] inline const char* tokenTypeToString(TokenType type) noexcept {
         using enum TokenType;
         switch (type) {
+            //Keywords
             case KW_IMPORT: return "KW_IMPORT";
             case KW_EXPORT: return "KW_EXPORT";
             case KW_MODULE: return "KW_MODULE";
@@ -145,6 +198,7 @@ namespace AOO::Lexer {
             case KW_VAL: return "KW_VAL";
             case KW_REF: return "KW_REF";
             case KW_SELF: return "KW_SELF";
+            //Operators
             case OP_PLUS: return "OP_PLUS";
             case OP_DOUBLE_PLUS: return "OP_DOUBLE_PLUS";
             case OP_PLUS_EQUAL: return "OP_PLUS_EQUAL";
@@ -188,6 +242,7 @@ namespace AOO::Lexer {
             case OP_DOUBLE_PERIOD: return "OP_DOUBLE_PERIOD";
             case OP_TRIPLE_PERIOD: return "OP_TRIPLE_PERIOD";
             case OP_DASH_GREATER: return "OP_DASH_GREATER";
+            //Characters
             case CH_SEMICOLON: return "CH_SEMICOLON";
             case CH_UNDERSCORE: return "CH_UNDERSCORE";
             case CH_COMMA: return "CH_COMMA";
@@ -199,20 +254,58 @@ namespace AOO::Lexer {
             case CH_RIGHT_BRACE: return "CH_RIGHT_BRACE";
             case CH_LEFT_BRACKET: return "CH_LEFT_BRACKET";
             case CH_RIGHT_BRACKET: return "CH_RIGHT_BRACKET";
-            case GN_U8: return "GN_U8";
-            case GN_U16: return "GN_U16";
-            case GN_U32: return "GN_U32";
-            case GN_U64: return "GN_U64";
-            case GN_I8: return "GN_I8";
-            case GN_I16: return "GN_I16";
-            case GN_I32: return "GN_I32";
-            case GN_I64: return "GN_I64";
-            case GN_F32: return "GN_F32";
-            case GN_F64: return "GN_F64";
+            //Binary literals
+            case GN_BINARY_INT: return "GN_BINARY_INT";
+            case GN_BINARY_INT_U8: return "GN_BINARY_INT_U8";
+            case GN_BINARY_INT_U16: return "GN_BINARY_INT_U16";
+            case GN_BINARY_INT_U32: return "GN_BINARY_INT_U32";
+            case GN_BINARY_INT_U64: return "GN_BINARY_INT_U64";
+            case GN_BINARY_INT_I8: return "GN_BINARY_INT_I8";
+            case GN_BINARY_INT_I16: return "GN_BINARY_INT_I16";
+            case GN_BINARY_INT_I32: return "GN_BINARY_INT_I32";
+            case GN_BINARY_INT_I64: return "GN_BINARY_INT_I64";
+            //Octal literals
+            case GN_OCTAL_INT: return "GN_OCTAL_INT";
+            case GN_OCTAL_INT_U8: return "GN_OCTAL_INT_U8";
+            case GN_OCTAL_INT_U16: return "GN_OCTAL_INT_U16";
+            case GN_OCTAL_INT_U32: return "GN_OCTAL_INT_U32";
+            case GN_OCTAL_INT_U64: return "GN_OCTAL_INT_U64";
+            case GN_OCTAL_INT_I8: return "GN_OCTAL_INT_I8";
+            case GN_OCTAL_INT_I16: return "GN_OCTAL_INT_I16";
+            case GN_OCTAL_INT_I32: return "GN_OCTAL_INT_I32";
+            case GN_OCTAL_INT_I64: return "GN_OCTAL_INT_I64";
+            //Decimal literals
+            case GN_DECIMAL_INT: return "GN_DECIMAL_INT";
+            case GN_DECIMAL_INT_U8: return "GN_DECIMAL_INT_U8";
+            case GN_DECIMAL_INT_U16: return "GN_DECIMAL_INT_U16";
+            case GN_DECIMAL_INT_U32: return "GN_DECIMAL_INT_U32";
+            case GN_DECIMAL_INT_U64: return "GN_DECIMAL_INT_U64";
+            case GN_DECIMAL_INT_I8: return "GN_DECIMAL_INT_I8";
+            case GN_DECIMAL_INT_I16: return "GN_DECIMAL_INT_I16";
+            case GN_DECIMAL_INT_I32: return "GN_DECIMAL_INT_I32";
+            case GN_DECIMAL_INT_I64: return "GN_DECIMAL_INT_I64";
+            case GN_DECIMAL_FLOAT: return "GN_DECIMAL_FLOAT";
+            case GN_DECIMAL_FLOAT_F32: return "GN_DECIMAL_FLOAT_F32";
+            case GN_DECIMAL_FLOAT_F64: return "GN_DECIMAL_FLOAT_F64";
+            //Hexadecimal literals
+            case GN_HEX_INT: return "GN_HEX_INT";
+            case GN_HEX_INT_U8: return "GN_HEX_INT_U8";
+            case GN_HEX_INT_U16: return "GN_HEX_INT_U16";
+            case GN_HEX_INT_U32: return "GN_HEX_INT_U32";
+            case GN_HEX_INT_U64: return "GN_HEX_INT_U64";
+            case GN_HEX_INT_I8: return "GN_HEX_INT_I8";
+            case GN_HEX_INT_I16: return "GN_HEX_INT_I16";
+            case GN_HEX_INT_I32: return "GN_HEX_INT_I32";
+            case GN_HEX_INT_I64: return "GN_HEX_INT_I64";
+            case GN_HEX_FLOAT: return "GN_HEX_FLOAT";
+            case GN_HEX_FLOAT_F32: return "GN_HEX_FLOAT_F32";
+            case GN_HEX_FLOAT_F64: return "GN_HEX_FLOAT_F64";
+            //Other literals
             case GN_CHAR: return "GN_CHAR";
             case GN_STRING: return "GN_STRING";
             case GN_IDENTIFIER: return "GN_IDENTIFIER";
             case GN_LABEL: return "GN_LABEL";
+            //Misc
             case MISC_WHITESPACE: return "MISC_WHITESPACE";
             case MISC_EOF: return "MISC_EOF";
             case MISC_ERROR: return "MISC_ERROR";
@@ -259,38 +352,18 @@ namespace AOO::Lexer {
         StringType strType{StringType::NotAString};
         union {
             span<const u8> payload;
-            u8 u8Payload;
-            u16 u16Payload;
-            u32 u32Payload;
-            u64 u64Payload;
-            i8 i8Payload;
-            i16 i16Payload;
-            i32 i32Payload;
-            i64 i64Payload;
-            float f32Payload;
-            double f64Payload;
+            u8 charPayload;
         };
     };
 
     inline ostream& operator<<(ostream& os, const Token& token) {
         using enum TokenType;
 
-        os << "Token: " << token.type << ", ";
+        os << "Tk: " << token.type << ", ";
         if (token.strType != StringType::NotAString) os << "StringType: " << token.strType << ", ";
         os << "\"";
         switch (token.type) {
-            //We cast to u32 here to print the number instead of the character.
-            case GN_U8:   os << static_cast<u32>(token.u8Payload); break;
-            case GN_CHAR: os << token.u8Payload;                   break;
-            case GN_U16:  os << token.u16Payload;                  break;
-            case GN_U32:  os << token.u32Payload;                  break;
-            case GN_U64:  os << token.u64Payload;                  break;
-            case GN_I8:   os << token.i8Payload;                   break;
-            case GN_I16:  os << token.i16Payload;                  break;
-            case GN_I32:  os << token.i32Payload;                  break;
-            case GN_I64:  os << token.i64Payload;                  break;
-            case GN_F32:  os << token.f32Payload;                  break;
-            case GN_F64:  os << token.f64Payload;                  break;
+            case GN_CHAR: os << token.charPayload; break;
             default: os << string(token.payload.begin(), token.payload.end()); break;
         }
         os << '"';

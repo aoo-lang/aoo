@@ -1,23 +1,81 @@
-﻿i32 main () {
-    '\u' :__: '_+_: '__: '_: '__: 'tfjeo54890uj35_wrtuj890wr4_tuj0guhr4thur456_:
+﻿'\u' :__: '_+_: '__: '_: '__: 'tfje54890uj35_wr90wr4_uhr4thur456_:
 
-    // Normal character
-    _ normal_1 = 'm', normal_2 = '4', normal_3 = '[', normal_4 = '_', normal_5 = '%', normal_6 = 'B', normal_n7 = 'hfuiwe', normal_n8 = 'dd';
+'a_very_very_long_identifier__precisely_its_more_than_256_characters__this_legacy_limit_on_identifiers_is_mainly_due_to_the_old_compilers_had_a_very_strict_memory_constraint_so_they_need_to_assign_a_fixed_buffer_for_identifier_table_items__nowadays_we_have_sufficient_characters_so_we_will_certainly_lift_it__but_be_careful_to_check_file_size_before_loading_the_whole_file_to_prevent_malicious_actors_poking_a_very_big_file_to_make_an_OOM:
 
-    // Escaped character
-    _ escaped_1 = '\a', escaped_2 = '\b', escaped_3 = '\f', escaped_4 = '\n', escaped_5 = '\r', escaped_6 = '\t', escaped_7 = '\v', escaped_8 = '\\', escaped_9 = '\'', escaped_n10 = '\g', escaped_n11 = '\ag', escaped_n12 = '\X', escaped_n13 = '\lll';
+// Normal character
+normal_1 'm'
+normal_2 '4'
+normal_3 '['
+normal_4 '_'
+normal_5 '%'
+normal_6 'B'
+normal_n7 'hfuiwe'
+normal_n8 'dd'
 
-    // Octal escape
-    _ octal_1 = '\0', octal_2 = '\001', octal_3 = '\077', octal_n4 = '\6jf', octal_n5 = '\c', octal_n6 = '\38', octal_7 = '\306', octal_8 = '\377', octal_n9 = '\2423', octal_n10 = '\085', octal_11 = '\36', octal_n12 = '\777', octal_n13 = '\400';
+// Escaped character
+escaped_1 '\a'
+escaped_2 '\b'
+escaped_3 '\f'
+escaped_4 '\n'
+escaped_5 '\r'
+escaped_6 '\t'
+escaped_7 '\v'
+escaped_8 '\\'
+escaped_9 '\''
+escaped_n10 '\g'
+escaped_n11 '\ag'
+escaped_n12 '\X'
+escaped_n13 '\lll'
 
-    // Hex escape
-    _ hex_1 = '\x0', hex_2 = '\xF', hex_n3 = '\xn', hex_4 = '\xA3', hex_n5 = '\xFG', hex_6 = '\xFF', hex_n7 = '\x', hex_n8 = '\x83BF', hex_n9 = '\xFFFFFFFFFFFFFFFFFFFFFFFF', hex_n10 = '\xc]', hex_11 = '\x00000000000000000000000000000000000000040', hex_12 = '\xFb', hex_13 = '\x2e';
+// Octal escape
+octal_1 '\0'
+octal_2 '\001'
+octal_3 '\077'
+octal_n4 '\6jf'
+octal_n5 '\c'
+octal_n6 '\38'
+octal_7 '\306'
+octal_8 '\377'
+octal_n9 '\2423'
+octal_n10 '\085'
+octal_11 '\36'
+octal_n12 '\777'
+octal_n13 '\400'
 
-    // Unicode escape
-    _ unicode_1 = '\u0001', unicode_2 = '\u004C', unicode_3 = '\u00FF', unicode_n4 = '\uDEAD', unicode_n5 = '\u', unicode_n6 = '\u039420', unicode_7 = '\U00000000', unicode_8 = '\U000000FF', unicode_9 = '\U0000007F', unicode_10 = '\u0000', unicode_n11 = '\U00990099', unicode_n12 = '\U0190', unicode_n13 = '\U', unicode_n14 = '\U9348944129492423';
+// Hex escape
+hex_1 '\x0'
+hex_2 '\xF'
+hex_n3 '\xn'
+hex_4 '\xA3'
+hex_n5 '\xFG'
+hex_6 '\xFF'
+hex_n7 '\x'
+hex_n8 '\x83BF'
+hex_n9 '\xFFFFFFFFFFFFFFFFFFFFFFFF'
+hex_n10 '\xc]'
+hex_11 '\x00000000000000000000000000000000000000040'
+hex_12 '\xFb'
+hex_13 '\x2e'
 
-    // Misc errors
-    _ misc_n1 = '\n\', misc_n2 = '\t\x0F', misc_n3 = '';
+// Unicode escape
+unicode_1 '\u0001'
+unicode_2 '\u004C'
+unicode_3 '\u00FF'
+unicode_n4 '\uDEAD'
+unicode_n5 '\u'
+unicode_n6 '\u039420'
+unicode_7 '\U00000000'
+unicode_8 '\U000000FF'
+unicode_9 '\U0000007F'
+unicode_10 '\u0000'
+unicode_n11 '\U00990099'
+unicode_n12 '\U0190'
+unicode_n13 '\U'
+unicode_n14 '\U9348944129492423'
 
-}
+// Misc errors
+misc_n1 '\n\'
+misc_n2 '\t\x0F'
+misc_n3 ''
+
 :'_:_:''_':_:':'_'__::'''_:'__:::_:_':_'::_''__:__'__:':__':_:__'_''::___'____:

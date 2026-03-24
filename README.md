@@ -8,16 +8,16 @@ Also a semester "homework" for *Principles of Compiler* to *"impress"* my teache
 
 ## Properties
 
-1. Compiled.
-2. Statically typed.
-3. Simple. AOO has less keywords than C89.
-4. "Better" OOP by: No constructor; No inheritance; No virtual methods; Independent interface definition.
-5. Modules, not header files.
-6. No any memory safety attempts because the true safety is in programmers' minds.
-7. Variables are constant by default. Append `!` to type name to create mutable variables. 
-8. Parameters are classified by mutability, not value/reference. Immutable parameters is automatically determined to be passed by value/reference but can also be specified. Mutable parameters are always passed by reference.
-9. `=` always moves the right-hand side and changes its type to `?`(`void`) to prevent further usage. Implement `Copy` trait for shallow copy, and `Clone` trait for deep clone.
-10. Pointer types are not hidden and it's the only way to explicitly reference to another object. No more reference rabbit holes. And also, `?*`(`void*`) exists.
+1. Compiled & statically typed.
+2. Simple. AOO has less keywords than C89. Manuls are simple animals and we need simpler things.
+3. "Better" OOP by: No constructor; No inheritance; No virtual methods; Independent interface definition.
+4. Modules, not header files.
+5. No memory safety attempts because the true safety is in programmers' (manuls') minds.
+6. Variables are constant by default. Append `!` to type name to create mutable variables. 
+7. Parameters are classified by mutability, not value/reference. Immutable parameters is automatically determined to be passed by value/reference but can also be specified. Mutable parameters are always passed by reference.
+8. `=` always moves the right-hand side and changes its type to `?`(`void`) to prevent further usage. Implement `Copy` trait for shallow copy, and `Clone` trait for deep clone.
+   - Why `?`? Because manuls are always questioning about life.
+9. Pointer types are not hidden and it's the only way to explicitly reference to another object. No more reference rabbit holes. And also, `?*`(`void*`) exists.
 
 ## Examples
 

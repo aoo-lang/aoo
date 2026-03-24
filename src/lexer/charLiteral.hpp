@@ -27,7 +27,7 @@ namespace AOO::Lexer {
         //Stop with one digit.
         else if (fileContent[cursor] == '\'') {
             cursor++;
-            return {.type = GN_CHAR, .u8Payload = static_cast<u8>(secondChar - '0')};
+            return {.type = GN_CHAR, .charPayload = static_cast<u8>(secondChar - '0')};
         }
         //Invalid.
         else {
@@ -45,7 +45,7 @@ namespace AOO::Lexer {
                 cursor += 2;
                 const u16 value = (secondChar - '0') * 64 + (secondOctalDigit - '0') * 8 + (thirdOctalDigit - '0');
                 if (value > 255) return {.type = MISC_ERROR, .payload = span(fileContent.data() + cursor - 6, 6)};
-                return {.type = GN_CHAR, .u8Payload = static_cast<u8>(value)};
+                return {.type = GN_CHAR, .charPayload = static_cast<u8>(value)};
             }
             else {
                 //More than three octal digits is not allowed, we need to greedy until ' and error out.
@@ -57,7 +57,7 @@ namespace AOO::Lexer {
         else if (fileContent[cursor] == '\'') {
             cursor++;
             //Two digits never overflow.
-            return {.type = GN_CHAR, .u8Payload = static_cast<u8>((secondChar - '0') * 8 + (secondOctalDigit - '0'))};
+            return {.type = GN_CHAR, .charPayload = static_cast<u8>((secondChar - '0') * 8 + (secondOctalDigit - '0'))};
         }
         //Invalid. Greedy until ' and error out.
         else {
@@ -87,7 +87,7 @@ namespace AOO::Lexer {
                         return {.type = MISC_ERROR, .payload = span(fileContent.data() + origin, cursor - origin)};
                     }
                     else if (cursor == origin + 4) return {.type = MISC_ERROR, .payload = span(fileContent.data() + origin, 4)};
-                    else return {.type = GN_CHAR, .u8Payload = static_cast<u8>(value)};
+                    else return {.type = GN_CHAR, .charPayload = static_cast<u8>(value)};
                 }
                 else return greedyUntilAndErrorOut(cursor, '\'', origin);
             }
@@ -106,7 +106,7 @@ namespace AOO::Lexer {
                     const u16 value = static_cast<u16>(getHexValue(fileContent[cursor]) << 12) | static_cast<u16>(getHexValue(fileContent[cursor + 1]) << 8) | static_cast<u16>(getHexValue(fileContent[cursor + 2]) << 4) | static_cast<u16>(getHexValue(fileContent[cursor + 3]));
                     cursor += 5;
                     if (value > 255) return {.type = MISC_ERROR, .payload = span(fileContent.data() + cursor - 8, 8)};
-                    else return {.type = GN_CHAR, .u8Payload = static_cast<u8>(value)};
+                    else return {.type = GN_CHAR, .charPayload = static_cast<u8>(value)};
                 }
                 //Invalid hex digits. Stop immediately! We cannot greedy by the stupid standard. Yes, we greedy on octal escape sequences when we encounter invalid digits but we don't on hex ones. How consistent.
                 else if (!isHexDigit(fileContent[cursor])) {
@@ -153,7 +153,7 @@ namespace AOO::Lexer {
                     const u32 value = static_cast<u32>(getHexValue(fileContent[cursor]) << 28) | static_cast<u32>(getHexValue(fileContent[cursor + 1]) << 24) | static_cast<u32>(getHexValue(fileContent[cursor + 2]) << 20) | static_cast<u32>(getHexValue(fileContent[cursor + 3]) << 16) | static_cast<u32>(getHexValue(fileContent[cursor + 4]) << 12) | static_cast<u32>(getHexValue(fileContent[cursor + 5]) << 8) | static_cast<u32>(getHexValue(fileContent[cursor + 6]) << 4) | static_cast<u32>(getHexValue(fileContent[cursor + 7]));
                     cursor += 9;
                     if (value > 255) return {.type = MISC_ERROR, .payload = span(fileContent.data() + cursor - 12, 12)};
-                    else return {.type = GN_CHAR, .u8Payload = static_cast<u8>(value)};
+                    else return {.type = GN_CHAR, .charPayload = static_cast<u8>(value)};
                 }
                 //Invalid hex digits. Stop immediately! We cannot greedy by the stupid standard. Yes, we greedy on octal escape sequences when we encounter invalid digits but we don't on hex ones. How consistent.
                 else if (!isHexDigit(fileContent[cursor])) {
@@ -209,7 +209,7 @@ namespace AOO::Lexer {
         cursor += 3;
         if (fileContent[cursor] == '\'') {
             cursor++;
-            return {.type = GN_CHAR, .u8Payload = escapedChar};
+            return {.type = GN_CHAR, .charPayload = escapedChar};
         }
         else {
             cursor++;
@@ -286,7 +286,7 @@ namespace AOO::Lexer {
                 }
                 else { //Closed -> char literal.
                     cursor += 3;
-                    return {.type = GN_CHAR, .u8Payload = firstChar};
+                    return {.type = GN_CHAR, .charPayload = firstChar};
                 }
             }
         }

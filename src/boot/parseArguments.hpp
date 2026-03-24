@@ -4,17 +4,23 @@
 #include <vector>
 #include <CLI/CLI.hpp>
 
+#include "../manul/splashes.hpp"
 #include "../util/platform.hpp"
 #include "Arguments.hpp"
 
 namespace AOO {
-    using std::cout, std::cerr, std::cin, std::vector, std::string, CLI::App, CLI::Option, CLI::CallForHelp, CLI::CallForVersion, CLI::ParseError;
+    using std::cout, std::cerr, std::cin, std::vector, std::string, CLI::App, CLI::Option, CLI::CallForHelp, CLI::CallForVersion, CLI::ParseError, CLI::IsMember;
 
     [[nodiscard]] inline Arguments parseArguments(int argc, char** argv) noexcept {
     #if AOO_PLATFORM_WINDOWS
         SetConsoleOutputCP(CP_UTF8);
         SetConsoleCP(CP_UTF8);
     #endif
+
+    #if 0
+        for (int i = 0; i < argc; i++) cout << "Argument " << i << ": " << argv[i] << '\n';
+    #endif
+
         App app;
         app.set_config();
         app.set_help_all_flag();
@@ -22,20 +28,25 @@ namespace AOO {
         app.allow_config_extras(false);
         app.allow_non_standard_option_names(true);
         app.allow_windows_style_options(false);
-
-        app.set_version_flag("-v,--version", "0.0.1", "Display program version information and exit.");
+        
+        app.set_version_flag("-v,--version", "0.0.1", "Display version and exit.");
         app.set_help_flag("-h,--help", "Show this help message and exit.");
 
-        bool debugMode = false;
-        app.add_flag("--debug", debugMode, "Enable debug mode.")->default_val("false");
+        string dump_kind;
+        const Option& dump_lexer_tokens_Option = *app.add_option("--dump", dump_kind, "Dump Lexer tokens.")->type_name("[DUMP_KIND]")->check(CLI::IsMember({"lexer", "ast", "ir", "asm"}));
 
-        string dump_lexer_tokens_dummy;
-        const Option& dump_lexer_tokens_Option = *app.add_option("--dump-lexer-tokens", dump_lexer_tokens_dummy, "Dump Lexer tokens. Specify `[FILE]` to dump to a file, or to stdout, if not.")->expected(0, 1)->type_name("[FILE]");
+        string dump_to;
+        app.add_option("--dump-to", dump_to, "Specify the file path to dump the output of --dump. If not, the output will be dumped to stdout.")->type_name("[FILE_PATH]");
 
-        string inputFile;
-        app.add_option("inputFile", inputFile, "File to compile.")->type_name("[FILE]");
+        string literal_code;
+        app.add_option("--literal-code", literal_code, "Provide the literal code to compile.")->type_name("[CODE]");
 
-        app.footer("© 2026 LJM12914.\nAOO Compiler is licensed under the MIT License.\nhttps://github.com/aoo-lang/aoo");
+        string input_file_path;
+        app.add_option("input_file_path", input_file_path, "File to compile.")->type_name("[FILE_PATH]");
+
+        string support_file_path;
+
+        app.footer(string("© 2026 LJM12914. Licensed under the MIT License.\n") + AOO::Manul::getSplash() + "\nhttps://github.com/aoo-lang/aoo");
 
         try { app.parse(argc, argv); }
         catch(const CallForHelp& e) {
@@ -52,29 +63,24 @@ namespace AOO {
         }
 
         Arguments result = {
-            .debugMode = debugMode,
+            .debug = {
+                .dump_kind = [&dump_kind]() {
+                    using enum Arguments::Debug::DumpKind;
+                    if (dump_kind == "lexer") return Lexer;
+                    else if (dump_kind == "ast") return AST;
+                    else if (dump_kind == "ir") return IR;
+                    else if (dump_kind == "asm") return ASM;
+                    else return None;
+                }(),
+                .dump_to = dump_to
+            },
+            .input_file_path = input_file_path,
+            .literal_code = literal_code
         };
 
-        if (debugMode) {
-            cout << "Debug mode enabled.\nSpecify input file: ";
-            string inputFile2;
-            cin >> inputFile2;
-            if (inputFile2.empty()) {
-                cerr << "Error: No input file specified.\n";
-                exit(1000);
-            }
-            result.inputFile = inputFile2;
-        }
-        else if (inputFile.empty()) {
-            cerr << "Error: No input file specified.\n";
+        if (result.input_file_path.empty() && result.literal_code.empty()) {
+            cerr << "Error: No input file or literal code specified.\n";
             exit(1000);
-        }
-
-        if (dump_lexer_tokens_Option.count() == 0) result.printLexerTokens = false;
-        else {
-            const vector<string>& optionValues = dump_lexer_tokens_Option.results();
-            result.printLexerTokens = true;
-            if (!optionValues.empty()) result.printLexerTokensFile = optionValues[0];
         }
 
         return result;

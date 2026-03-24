@@ -6,6 +6,7 @@ Thumbs.db
 # Build system/IDE generated files/folders
 #.vscode/
 .vs/
+.vscode/
 .VSCodeCounter/
 *.suo
 *.user
