@@ -1,6 +1,6 @@
 ﻿cmake_minimum_required(VERSION "4.0")
 
-project("AOO")
+project("aoo")
 
 #------------Basic-----------------
 set(CMAKE_CXX_STANDARD 23)
@@ -15,6 +15,12 @@ set(CMAKE_SUPPRESS_REGENERATION ON CACHE BOOL "" FORCE)
 #----------------------------------
 
 #--------------Tweaks--------------
+include(CheckIPOSupported)
+check_ipo_supported(RESULT linkTimeOptimizationSupported)
+if(linkTimeOptimizationSupported)
+    set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
+endif()
+
 add_library(ScopedFlags INTERFACE)
 if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC" OR (CMAKE_CXX_COMPILER_ID STREQUAL "Clang" AND CMAKE_CXX_COMPILER_FRONTEND_VARIANT STREQUAL "MSVC"))
     message("Using MSVC / clang-cl")
@@ -71,6 +77,39 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE INTERNAL "")
 file(GLOB_RECURSE AOO_SOURCES CMAKE_CONFIGURE_DEPENDS "${CMAKE_SOURCE_DIR}/src/*.cpp")
 #----------------------------------
 
+#------------Dep:3rdparty----------
+set(ZLIB_BUILD_TESTING OFF CACHE BOOL "")
+set(ZLIB_BUILD_SHARED  OFF CACHE BOOL "")
+set(ZLIB_BUILD_STATIC  ON  CACHE BOOL "")
+set(ZLIB_INSTALL       OFF CACHE BOOL "")
+set(ZLIB_PREFIX        OFF CACHE BOOL "")
+add_subdirectory("libs/zlib" EXCLUDE_FROM_ALL)
+set(ZLIB_INCLUDE_DIR 
+    "${CMAKE_SOURCE_DIR}/libs/zlib" 
+    "${CMAKE_BINARY_DIR}/libs/zlib" 
+    CACHE PATH "" FORCE
+)
+set(ZLIB_LIBRARY zlibstatic CACHE STRING "" FORCE)
+target_include_directories(zlibstatic PUBLIC
+    "${PROJECT_SOURCE_DIR}/libs/zlib"
+    "${PROJECT_BINARY_DIR}/libs/zlib"
+)
+
+include_directories(BEFORE "${CMAKE_SOURCE_DIR}/src/llvm-patch")
+
+#fixme: Gemini suggested arguments. DYOR.
+set(LLVM_ENABLE_DIA_SDK             OFF CACHE BOOL "" FORCE)
+set(LLVM_TARGETS_TO_BUILD "X86;AArch64" CACHE STRING "Restrict build to target architectures")
+set(LLVM_ENABLE_PROJECTS             "" CACHE STRING "" FORCE)
+set(LLVM_INCLUDE_TESTS              OFF CACHE BOOL "" FORCE)
+set(LLVM_INCLUDE_EXAMPLES           OFF CACHE BOOL "" FORCE)
+set(LLVM_INCLUDE_BENCHMARKS         OFF CACHE BOOL "" FORCE)
+set(LLVM_ENABLE_BINDINGS            OFF CACHE BOOL "" FORCE)
+set(LLVM_ENABLE_RTTI                ON  CACHE BOOL "" FORCE)
+set(LLVM_ENABLE_EH                  ON  CACHE BOOL "" FORCE)
+add_subdirectory("libs/llvm/llvm" EXCLUDE_FROM_ALL)
+#----------------------------------
+
 #---------------AOO----------------
 add_executable(${PROJECT_NAME} ${AOO_SOURCES})
 #----------------------------------
@@ -96,12 +135,22 @@ target_include_directories(${PROJECT_NAME} PRIVATE
     "libs/boost/unordered/include"
 
     "libs/cli11/include"
+
+    "libs/llvm/llvm/include"
 )
 #----------------------------------
 
 #---------------Link---------------
 target_link_libraries(${PROJECT_NAME} PRIVATE
     ScopedFlags
+
+    zlibstatic
+
+    LLVMCore
+    LLVMSupport
+    LLVMX86CodeGen
+    LLVMX86Desc
+    LLVMX86Info
 )
 #----------------------------------
 
