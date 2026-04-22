@@ -3,7 +3,12 @@ module import export type trait enum if else for break continue match return pub
 
 importexport module  _type trait1 identifier1 _ __222 'a: '_: '___220000:
 
-+ ++ += - -- -= * *= / /= % %= < <= << <<= > >= >> >>= | || |= & && &= ^ ^= ~ ! !! = == != ?? ?: : :: => -> . .. ... ; , ( ) { } [ ] 'f' "g" b"g" c"g" r"g" f"g" //line comments
++ ++ += - -- -= * *= / /= % %= < <= << <<= > >= >> >>= | || |= & && &= ^ ^= ~ ! !! = == != ?? ?: : :: => -> . .. ... ; , ( ) { } [ ]
+
+'f'
+
+"g" b"g" c"g" r"g" f"g"  //line comments
+
 /*
 
 comment
