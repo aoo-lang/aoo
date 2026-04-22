@@ -10,27 +10,34 @@ namespace AOO::Lexer {
     enum struct TokenType : u8 {
 
         //Keywords
+        KW_MODULE,
         KW_IMPORT,
         KW_EXPORT,
-        KW_MODULE,
         KW_TYPE,
         KW_TRAIT,
         KW_ENUM,
+    //-----------------------------
         KW_IF,
         KW_ELSE,
         KW_FOR,
-        KW_MATCH,
-        KW_RETURN,
         KW_BREAK,
         KW_CONTINUE,
-        KW_IN,
+        KW_MATCH,
+        KW_RETURN,
+    //-----------------------------
         KW_PUBLIC,
         KW_PRIVATE,
-        KW_AS,
+        KW_SELF,
         KW_OP,
+    //-----------------------------
+        KW_VOID,
+        KW_AUTO,
+        KW_AS,
         KW_VAL,
         KW_REF,
-        KW_SELF,
+    //-----------------------------
+        KW_IN,
+        KW_DUP,
 
         //Operators
         OP_PLUS,                    // +
@@ -42,7 +49,6 @@ namespace AOO::Lexer {
         OP_DASH_EQUAL,              // -=
 
         OP_STAR,                    // *
-        OP_DOUBLE_STAR,             // **
         OP_STAR_EQUAL,              // *=
 
         OP_SLASH,                   // /
@@ -81,22 +87,20 @@ namespace AOO::Lexer {
         OP_DOUBLE_EQUAL,            // ==
         OP_BANG_EQUAL,              // !=
 
-        OP_QUESTION,                // ?
         OP_DOUBLE_QUESTION,         // ??
         OP_QUESTION_COLON,          // ?:
+        OP_COLON,                   // :
         OP_DOUBLE_COLON,            // ::
 
         OP_EQUAL_GREATER,           // =>
+        OP_DASH_GREATER,            // ->
+        OP_PERIOD,                  // .
         OP_DOUBLE_PERIOD,           // ..
         OP_TRIPLE_PERIOD,           // ...
-        OP_DASH_GREATER,            // ->
 
         //Characters
         CH_SEMICOLON,               // ;
-        CH_UNDERSCORE,              // _
         CH_COMMA,                   // ,
-        CH_COLON,                   // :
-        CH_PERIOD,                  // .
         CH_LEFT_PAREN,              // (
         CH_RIGHT_PAREN,             // )
         CH_LEFT_BRACE,              // {
@@ -170,27 +174,30 @@ namespace AOO::Lexer {
         using enum TokenType;
         switch (type) {
             //Keywords
+            case KW_MODULE: return "KW_MODULE";
             case KW_IMPORT: return "KW_IMPORT";
             case KW_EXPORT: return "KW_EXPORT";
-            case KW_MODULE: return "KW_MODULE";
             case KW_TYPE: return "KW_TYPE";
             case KW_TRAIT: return "KW_TRAIT";
             case KW_ENUM: return "KW_ENUM";
             case KW_IF: return "KW_IF";
             case KW_ELSE: return "KW_ELSE";
             case KW_FOR: return "KW_FOR";
-            case KW_MATCH: return "KW_MATCH";
-            case KW_RETURN: return "KW_RETURN";
             case KW_BREAK: return "KW_BREAK";
             case KW_CONTINUE: return "KW_CONTINUE";
-            case KW_IN: return "KW_IN";
+            case KW_MATCH: return "KW_MATCH";
+            case KW_RETURN: return "KW_RETURN";
             case KW_PUBLIC: return "KW_PUBLIC";
             case KW_PRIVATE: return "KW_PRIVATE";
-            case KW_AS: return "KW_AS";
+            case KW_SELF: return "KW_SELF";
             case KW_OP: return "KW_OP";
+            case KW_VOID: return "KW_VOID";
+            case KW_AUTO: return "KW_AUTO";
+            case KW_AS: return "KW_AS";
             case KW_VAL: return "KW_VAL";
             case KW_REF: return "KW_REF";
-            case KW_SELF: return "KW_SELF";
+            case KW_IN: return "KW_IN";
+            case KW_DUP: return "KW_DUP";
             //Operators
             case OP_PLUS: return "OP_PLUS";
             case OP_DOUBLE_PLUS: return "OP_DOUBLE_PLUS";
@@ -199,7 +206,6 @@ namespace AOO::Lexer {
             case OP_DOUBLE_DASH: return "OP_DOUBLE_DASH";
             case OP_DASH_EQUAL: return "OP_DASH_EQUAL";
             case OP_STAR: return "OP_STAR";
-            case OP_DOUBLE_STAR: return "OP_DOUBLE_STAR";
             case OP_STAR_EQUAL: return "OP_STAR_EQUAL";
             case OP_SLASH: return "OP_SLASH";
             case OP_SLASH_EQUAL: return "OP_SLASH_EQUAL";
@@ -227,20 +233,18 @@ namespace AOO::Lexer {
             case OP_EQUAL: return "OP_EQUAL";
             case OP_DOUBLE_EQUAL: return "OP_DOUBLE_EQUAL";
             case OP_BANG_EQUAL: return "OP_BANG_EQUAL";
-            case OP_QUESTION: return "OP_QUESTION";
             case OP_DOUBLE_QUESTION: return "OP_DOUBLE_QUESTION";
             case OP_QUESTION_COLON: return "OP_QUESTION_COLON";
+            case OP_COLON: return "OP_COLON";
             case OP_DOUBLE_COLON: return "OP_DOUBLE_COLON";
             case OP_EQUAL_GREATER: return "OP_EQUAL_GREATER";
+            case OP_DASH_GREATER: return "OP_DASH_GREATER";
+            case OP_PERIOD: return "OP_PERIOD";
             case OP_DOUBLE_PERIOD: return "OP_DOUBLE_PERIOD";
             case OP_TRIPLE_PERIOD: return "OP_TRIPLE_PERIOD";
-            case OP_DASH_GREATER: return "OP_DASH_GREATER";
             //Characters
             case CH_SEMICOLON: return "CH_SEMICOLON";
-            case CH_UNDERSCORE: return "CH_UNDERSCORE";
             case CH_COMMA: return "CH_COMMA";
-            case CH_COLON: return "CH_COLON";
-            case CH_PERIOD: return "CH_PERIOD";
             case CH_LEFT_PAREN: return "CH_LEFT_PAREN";
             case CH_RIGHT_PAREN: return "CH_RIGHT_PAREN";
             case CH_LEFT_BRACE: return "CH_LEFT_BRACE";

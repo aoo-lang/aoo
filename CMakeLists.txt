@@ -97,7 +97,7 @@ target_include_directories(zlibstatic PUBLIC
 
 include_directories(BEFORE "${CMAKE_SOURCE_DIR}/src/llvm-patch")
 
-#fixme: Gemini suggested arguments. DYOR.
+#todo:fixme: Gemini suggested arguments. DYOR.
 set(LLVM_ENABLE_DIA_SDK             OFF CACHE BOOL "" FORCE)
 set(LLVM_TARGETS_TO_BUILD "X86;AArch64" CACHE STRING "Restrict build to target architectures")
 set(LLVM_ENABLE_PROJECTS             "" CACHE STRING "" FORCE)

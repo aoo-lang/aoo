@@ -89,10 +89,6 @@ namespace AOO::Lexer {
                         cursor += 2;
                         return {.type = OP_STAR_EQUAL};
                     }
-                    else if (fileContent[cursor + 1] == '*') {
-                        cursor += 2;
-                        return {.type = OP_DOUBLE_STAR};
-                    }
                 }
                 cursor++;
                 return {.type = OP_STAR};
@@ -247,14 +243,14 @@ namespace AOO::Lexer {
                     }
                 }
                 cursor++;
-                return {.type = OP_QUESTION};
+                return {.type = MISC_ERROR, .payload = span(fileContent.data() + cursor - 1, 1)};
             case ':':
                 if (cursor + 1 < fileContent.size() && fileContent[cursor + 1] == ':') {
                     cursor += 2;
                     return {.type = OP_DOUBLE_COLON};
                 }
                 cursor++;
-                return {.type = CH_COLON};
+                return {.type = OP_COLON};
             case '.':
                 if (cursor + 1 < fileContent.size() && fileContent[cursor + 1] == '.') {
                     if (cursor + 2 < fileContent.size() && fileContent[cursor + 2] == '.') {
@@ -267,14 +263,10 @@ namespace AOO::Lexer {
                     }
                 }
                 cursor++;
-                return {.type = CH_PERIOD};
+                return {.type = OP_PERIOD};
             case ';':
                 cursor++;
                 return {.type = CH_SEMICOLON};
-            // We can't just take underscores now because they can be valid identifiers, so we handle them in getIdentifier() instead.
-            //case '_':
-            //    cursor++;
-            //    return {.type = CH_UNDERSCORE};
             case ',':
                 cursor++;
                 return {.type = CH_COMMA};

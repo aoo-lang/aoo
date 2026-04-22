@@ -269,8 +269,6 @@ namespace AOO::Lexer {
                         if (possibleLabel) {
                             if (fileContent[cursor] == ':') {
                                 cursor++;
-                                //'_: is not a valid label because a single _ is not a valid identifier.
-                                if (cursor == origin + 3 && fileContent[cursor - 2] == '_') return {.type = MISC_ERROR, .payload = span(fileContent.data() + origin, 3)};
                                 return {.type = GN_LABEL, .payload = span(fileContent.data() + origin + 1, cursor - origin - 2)};
                             }
                             else if (!isValidIdentifierPart(fileContent[cursor])) possibleLabel = false;

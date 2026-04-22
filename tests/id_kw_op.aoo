@@ -1,9 +1,9 @@
 ﻿
-import export module type trait enum if else for match return break continue in public private as op val ref self
+module import export type trait enum if else for break continue match return public private self op void auto as val ref in dup
 
-importexport module  _type trait1
+importexport module  _type trait1 identifier1 _ __222 'a: '_: '___220000:
 
-+ ++ += - -- -= * *= / /= % %= << <<= >> >>= | |= & &= ^ ^= ~ == != > >= < <= || && ! ?: :: & * ! !! _ ? ?? 'a: => . : = [] .. ... * -> 'f' "g" b"g" c"g" r"g" f"g" //line comments
++ ++ += - -- -= * *= / /= % %= < <= << <<= > >= >> >>= | || |= & && &= ^ ^= ~ ! !! = == != ?? ?: : :: => -> . .. ... ; , ( ) { } [ ] 'f' "g" b"g" c"g" r"g" f"g" //line comments
 /*
 
 comment

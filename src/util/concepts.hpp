@@ -7,7 +7,7 @@
 #include <utility>
 
 namespace Util {
-    using std::string, std::string_view, std::filesystem::path, std::decay_t, std::constructible_from, std::convertible_to, std::is_unsigned_v, std::is_signed_v, std::is_floating_point_v, std::derived_from, std::same_as, std::remove_cvref_t, std::make_index_sequence, std::index_sequence, std::is_aggregate_v;
+    using std::move, std::string, std::string_view, std::filesystem::path, std::decay_t, std::constructible_from, std::convertible_to, std::is_unsigned_v, std::is_signed_v, std::is_floating_point_v, std::derived_from, std::same_as, std::remove_cvref_t, std::make_index_sequence, std::index_sequence, std::is_aggregate_v;
 
     template <typename T>
     concept SInt = is_signed_v<T>;
@@ -78,19 +78,19 @@ namespace Util {
     }
 
     //DO NOT USE THIS FOR COUNTING STRUCTS WITH C-STYLE ARRAYS! It will expand the array and count each element IN THE ARRAY as a member, which is not what you want in most cases.
-    //But thankfully C-style arrays are banned from CG codebase anyway, so we are safe.
+    //But thankfully C-style arrays are banned from AOO codebase anyway, so we are safe.
     template <typename T, size_t N>
     concept HasNMembers = MemberCount::CanInitialize<T, N>::value && !MemberCount::CanInitialize<T, N + 1>::value;
 
     //DO NOT USE THIS FOR COUNTING STRUCTS WITH C-STYLE ARRAYS! It will expand the array and count each element IN THE ARRAY as a member, which is not what you want in most cases.
-    //But thankfully C-style arrays are banned from CG codebase anyway, so we are safe.
+    //But thankfully C-style arrays are banned from AOO codebase anyway, so we are safe.
     template <typename T, size_t maxSearchRange = 64>
     constexpr size_t memberCount = MemberCount::findMemberCount<T, 0, maxSearchRange>();
 
     template <typename T, typename U>
-    concept DistinctHandleOf = requires(T t) {
+    concept DistinctHandleOf = requires(remove_cvref_t<T> t) {
         { move(t.value) } -> EqualStrict<U&&>;
-    } && HasNMembers<T, 1>;
+    } && HasNMembers<remove_cvref_t<T>, 1>;
 
     //Usage:
     //template <FilePath T>

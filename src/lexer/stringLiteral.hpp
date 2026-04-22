@@ -6,6 +6,7 @@
 
 namespace AOO::Lexer {
     typedef uint8_t u8;
+    typedef uint64_t u64;
     using std::to_underlying;
     using enum TokenType;
     using enum StringType;
