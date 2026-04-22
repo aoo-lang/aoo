@@ -6,7 +6,7 @@
 namespace AOO::Parser {
     typedef uint8_t u8;
     typedef uint64_t u64;
-    using std::string, std::span, boost::unordered_flat_map;
+    using std::move, std::string, std::span, boost::unordered_flat_map;
 
     enum struct IdentifierType : u8 {
         Unknown, Variable, Function, Type, Trait, Enum, Module, Label
@@ -25,7 +25,7 @@ namespace AOO::Parser {
         const string identifierStr{identifier.begin(), identifier.end()};
         const auto p = detail::identifierTable.find(identifierStr);
         if (p == detail::identifierTable.end()) {
-            detail::identifierTable.emplace(std::move(identifierStr), IdentifierData{type, occurrence});
+            detail::identifierTable.emplace(move(identifierStr), IdentifierData{type, occurrence});
             return true;
         }
         else return false;

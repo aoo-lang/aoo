@@ -32,6 +32,12 @@ namespace AOO {
         app.set_version_flag("-v,--version", "0.0.1", "Display version and exit.");
         app.set_help_flag("-h,--help", "Show this help message and exit.");
 
+        vector<string> include_files;
+        app.add_option("-I,--include", include_files, "Specify files with modules to include.")->type_name("[FILE_PATH]");
+
+        vector<string> include_paths;
+        app.add_option("-L,--include-path", include_paths, "Specify paths to search for included files.")->type_name("[DIR_PATH]");
+
         string dump_kind;
         const Option& dump_lexer_tokens_Option = *app.add_option("--dump", dump_kind, "Dump Lexer tokens.")->type_name("[DUMP_KIND]")->check(CLI::IsMember({"lexer", "ast", "ir", "asm"}));
 
@@ -75,7 +81,9 @@ namespace AOO {
                 .dump_to = dump_to
             },
             .input_file_path = input_file_path,
-            .literal_code = literal_code
+            .literal_code = literal_code,
+            .include_files = include_files,
+            .include_paths = include_paths
         };
 
         if (result.input_file_path.empty() && result.literal_code.empty()) {
