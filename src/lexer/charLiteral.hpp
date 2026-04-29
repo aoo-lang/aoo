@@ -218,7 +218,7 @@ namespace AOO::Lexer {
     }
 
     //You may get a GN_LABEL from this.
-    [[nodiscard]] inline Token getCharLiteral(u64& cursor) noexcept {
+    [[nodiscard]] inline Token getCharLiteralOrLabel(u64& cursor) noexcept {
         if (cursor + 2 < fileContent.size()) {
             const u8 firstChar = fileContent[cursor + 1];
             if (firstChar == '\\' && cursor + 3 < fileContent.size()) {

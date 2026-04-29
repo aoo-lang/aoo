@@ -11,59 +11,67 @@ namespace AOO::Lexer {
     using Util::equals, Util::isValidIdentifierStart, Util::isValidIdentifierPart;
     using enum TokenType;
 
-    [[nodiscard]] inline TokenType keywordToTokenType(const span<const u8> kw) noexcept {
-        if (equals(kw, "module")) return KW_MODULE;
-        else if (equals(kw, "import")) return KW_IMPORT;
-        else if (equals(kw, "export")) return KW_EXPORT;
-        else if (equals(kw, "type")) return KW_TYPE;
-        else if (equals(kw, "trait")) return KW_TRAIT;
-        else if (equals(kw, "enum")) return KW_ENUM;
-        //-----------------------------
-        else if (equals(kw, "if")) return KW_IF;
-        else if (equals(kw, "else")) return KW_ELSE;
-        else if (equals(kw, "for")) return KW_FOR;
-        else if (equals(kw, "break")) return KW_BREAK;
-        else if (equals(kw, "continue")) return KW_CONTINUE;
-        else if (equals(kw, "match")) return KW_MATCH;
-        else if (equals(kw, "return")) return KW_RETURN;
-        //-----------------------------
-        else if (equals(kw, "public")) return KW_PUBLIC;
-        else if (equals(kw, "private")) return KW_PRIVATE;
-        else if (equals(kw, "self")) return KW_SELF;
-        else if (equals(kw, "op")) return KW_OP;
-        //-----------------------------
-        else if (equals(kw, "void")) return KW_VOID;
-        else if (equals(kw, "auto")) return KW_AUTO;
-        else if (equals(kw, "as")) return KW_AS;
-        else if (equals(kw, "val")) return KW_VAL;
-        else if (equals(kw, "ref")) return KW_REF;
-        //-----------------------------
-        else if (equals(kw, "in")) return KW_IN;
-        else if (equals(kw, "dup")) return KW_DUP;
-        else return GN_IDENTIFIER;
+    namespace detail {
+        [[nodiscard]] inline TokenType detectKeyword(const span<const u8> str) noexcept {
+            if (equals(str, "module")) return KW_MODULE;
+            else if (equals(str, "import")) return KW_IMPORT;
+            else if (equals(str, "export")) return KW_EXPORT;
+            else if (equals(str, "type")) return KW_TYPE;
+            else if (equals(str, "trait")) return KW_TRAIT;
+            else if (equals(str, "enum")) return KW_ENUM;
+            //-----------------------------
+            else if (equals(str, "if")) return KW_IF;
+            else if (equals(str, "else")) return KW_ELSE;
+            else if (equals(str, "for")) return KW_FOR;
+            else if (equals(str, "break")) return KW_BREAK;
+            else if (equals(str, "continue")) return KW_CONTINUE;
+            else if (equals(str, "match")) return KW_MATCH;
+            else if (equals(str, "return")) return KW_RETURN;
+            //-----------------------------
+            else if (equals(str, "public")) return KW_PUBLIC;
+            else if (equals(str, "private")) return KW_PRIVATE;
+            else if (equals(str, "self")) return KW_SELF;
+            else if (equals(str, "op")) return KW_OP;
+            //-----------------------------
+            else if (equals(str, "void")) return KW_VOID;
+            else if (equals(str, "auto")) return KW_AUTO;
+            else if (equals(str, "as")) return KW_AS;
+            else if (equals(str, "val")) return KW_VAL;
+            else if (equals(str, "ref")) return KW_REF;
+            //-----------------------------
+            else if (equals(str, "in")) return KW_IN;
+            else if (equals(str, "dup")) return KW_DUP;
+            else return GN_IDENTIFIER;
+        }
     }
 
-    // You might NOT get an identifier token from this.
-    [[nodiscard]] inline Token getIdentifier(u64& cursor) noexcept {
-        if (isValidIdentifierStart(fileContent[cursor])) {
-            if ( //Prefixed string literals.
-                (fileContent[cursor] == 'b' || fileContent[cursor] == 'c' || fileContent[cursor] == 'f' || fileContent[cursor] == 'r')
-             && cursor + 1 < fileContent.size()
-             && fileContent[cursor + 1] == '"'
-            ) {
-                cursor++;
-                return getStringLiteral(cursor);
-            }
-            const u64 identifierStart = cursor;
-            do { cursor++; } while (cursor < fileContent.size() && isValidIdentifierPart(fileContent[cursor]));
-            const span<const u8> identifier = span<const u8>(fileContent.data() + identifierStart, cursor - identifierStart);
-            return {.type = keywordToTokenType(identifier), .payload = identifier};
+    [[nodiscard]] inline Token getIdentifierLike(u64& cursor) noexcept {
+        switch (fileContent[cursor]) {
+            case '#':
+                //Compiler identifier
+                break;
+            case '@':
+                //Macros
+                break;
+            case '$':
+                //Macro parameters
+                break;
+            case '`':
+                //AST storage identifiers
+                break;
         }
-        //note: UTF-8 characters are not valid identifiers, and they will go to this branch and be treated as unknown characters, but they are split up (emits more than one token from one character) in this process.
-        else {
-            //Unknown character
+        if (!isValidIdentifierStart(fileContent[cursor])) {
             cursor++;
-            return {.type = TokenType::MISC_ERROR, .payload = span(fileContent.data() + cursor - 1, 1)};
+            return {.type = MISC_ERROR, .payload = span(fileContent.data() + cursor - 1, 1)};
         }
+        if ((
+            fileContent[cursor] == 'c'
+         || fileContent[cursor] == 'r'
+         || fileContent[cursor] == 'f'
+        ) && cursor + 1 < fileContent.size() && shouldBeConsideredStringLiteral(cursor)) return getStringLiteral(cursor);
+        const u64 origin = cursor;
+        do { cursor++; } while (cursor < fileContent.size() && isValidIdentifierPart(fileContent[cursor]));
+        const span<const u8> identifier = span<const u8>(fileContent.data() + origin, cursor - origin);
+        return {.type = detail::detectKeyword(identifier), .payload = identifier};
     }
 }

@@ -29,7 +29,6 @@ namespace AOO::Lexer {
     [[nodiscard]] inline Token getNextToken() noexcept {
         using namespace detail;
         using enum TokenType;
-        using AOO::fileContent;
 
         if (cursor == fileContent.size()) return {.type = MISC_EOF};
         else if (cursor > fileContent.size()) {
@@ -151,7 +150,8 @@ namespace AOO::Lexer {
                 cursor++;
                 return {.type = OP_LESS};
             case '>':
-                if (cursor + 1 < fileContent.size()) {
+                //Don't eat as multicharacter operators yet, because it might be a generics closer. The classic vector<vector<int`>>` bug and all that.
+                /* if (cursor + 1 < fileContent.size()) {
                     if (fileContent[cursor + 1] == '=') {
                         cursor += 2;
                         return {.type = OP_GREATER_EQUAL};
@@ -166,7 +166,7 @@ namespace AOO::Lexer {
                             return {.type = OP_DOUBLE_GREATER};
                         }
                     }
-                }
+                } */
                 cursor++;
                 return {.type = OP_GREATER};
             case '|':
@@ -270,7 +270,7 @@ namespace AOO::Lexer {
             case ',':
                 cursor++;
                 return {.type = CH_COMMA};
-            case '\'': return getCharLiteral(cursor);
+            case '\'': return getCharLiteralOrLabel(cursor);
             case '(':
                 cursor++;
                 return {.type = CH_LEFT_PAREN};
@@ -292,10 +292,7 @@ namespace AOO::Lexer {
             case '"': return getStringLiteral(cursor);
             case '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9':
                 return getNumberLiteral(cursor);
-            case 'b': case 'c': case 'r': case 'f':
-                if (cursor + 1 < fileContent.size() && fileContent[cursor + 1] == '"') return getStringLiteral(cursor);
-                else [[fallthrough]];
-            default: return getIdentifier(cursor);
+            default: return getIdentifierLike(cursor);
         }
     }
 

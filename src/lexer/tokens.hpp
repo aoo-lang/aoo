@@ -3,6 +3,8 @@
 #include <span>
 #include <string>
 
+#include "../util/BitField.hpp"
+
 namespace AOO::Lexer {
     typedef uint8_t u8;
     using std::span, std::ostream, std::string;
@@ -170,7 +172,7 @@ namespace AOO::Lexer {
         MISC_ERROR
     };
 
-    [[nodiscard]] inline const char* tokenTypeToString(TokenType type) noexcept {
+    [[nodiscard]] inline const char* tostring_TokenType(TokenType type) noexcept {
         using enum TokenType;
         switch (type) {
             //Keywords
@@ -310,55 +312,46 @@ namespace AOO::Lexer {
     }
 
     inline ostream& operator<<(ostream& os, TokenType type) noexcept {
-        os << tokenTypeToString(type);
+        os << tostring_TokenType(type);
         return os;
     }
 
-    enum struct StringType : u8 {
-        NotAString,
-        Normal,     Normal_Escaped,
-        Byte,       Byte_Escaped,
-        CStyle,     CStyle_Escaped,
-        Format,     Format_Escaped,
-        Raw,        Raw_Escaped
+    enum struct StringTypeFlags : u8 {
+        CStyle, Format, Raw, Escaped,
+        Count
     };
 
-    [[nodiscard]] inline const char* stringTypeToString(StringType type) {
-        switch (type) {
-            case StringType::NotAString: return "NotAString";
-            case StringType::Normal: return "Normal";
-            case StringType::Normal_Escaped: return "Normal_Escaped";
-            case StringType::Byte: return "Byte";
-            case StringType::Byte_Escaped: return "Byte_Escaped";
-            case StringType::CStyle: return "CStyle";
-            case StringType::CStyle_Escaped: return "CStyle_Escaped";
-            case StringType::Format: return "Format";
-            case StringType::Format_Escaped: return "Format_Escaped";
-            case StringType::Raw: return "Raw";
-            case StringType::Raw_Escaped: return "Raw_Escaped";
-        }
+    using StringType = Util::BitField<StringTypeFlags, StringTypeFlags::Count>;
+
+    [[nodiscard]] inline string tostring_StringType(StringType type) noexcept {
+        if (type.none()) return "Normal";
+        string result;
+        if (type.get(StringTypeFlags::CStyle)) result += result.empty() ? "CStyle" : "&CStyle";
+        if (type.get(StringTypeFlags::Format)) result += result.empty() ? "Format" : "&Format";
+        if (type.get(StringTypeFlags::Raw)) result += result.empty() ? "Raw" : "&Raw";
+        if (type.get(StringTypeFlags::Escaped)) result += result.empty() ? "Escaped" : "&Escaped";
+        return result;
     }
 
-    inline ostream& operator<<(ostream& os, StringType type) {
-        os << stringTypeToString(type);
+    inline ostream& operator<<(ostream& os, StringType type) noexcept {
+        os << tostring_StringType(type);
         return os;
     }
 
     struct Token {
         TokenType type;
-        StringType strType{StringType::NotAString};
+        StringType strlType;
         union {
             span<const u8> payload;
             u8 charPayload;
         };
     };
 
-    inline ostream& operator<<(ostream& os, const Token& token) {
+    inline ostream& operator<<(ostream& os, const Token& token) noexcept {
         using enum TokenType;
-
         os << "Tk: " << token.type << ", ";
-        if (token.strType != StringType::NotAString) os << "StringType: " << token.strType << ", ";
-        os << "\"";
+        if (token.type == GN_STRING) os << "StrlType: " << token.strlType << ", ";
+        os << '"';
         switch (token.type) {
             case GN_CHAR: os << token.charPayload; break;
             default: os << string(token.payload.begin(), token.payload.end()); break;

@@ -9,36 +9,99 @@ namespace AOO::Lexer {
     typedef uint64_t u64;
     using std::to_underlying;
     using enum TokenType;
-    using enum StringType;
+    using enum StringTypeFlags;
 
-    namespace detail {
-        [[nodiscard]] inline Token getStringLiteralTyped(u64& cursor, StringType strType, u64 origin) noexcept {
-            cursor++;
-            bool escaped = false;
-            while (cursor < fileContent.size()) {
-                cursor++;
-                if (fileContent[cursor] == '\\' && !escaped) escaped = true;
-                else if (fileContent[cursor] == '"' && fileContent[cursor - 1] != '\\') {
-                    cursor++;
-                    return {.type = GN_STRING, .strType = static_cast<StringType>(to_underlying(strType) + (escaped ? 1 : 0)), .payload = span(fileContent.data() + origin, cursor - origin)};
-                }
-            }
-            //File ended before closing quote.
-            return {.type = MISC_ERROR, .payload = span(fileContent.data() + origin, cursor - origin)};
+    [[nodiscard]] inline bool shouldBeConsideredStringLiteral(u64 cursor) noexcept {
+        for (u64 i = cursor; i < fileContent.size(); i++) switch (fileContent[i]) {
+            case 'c': case 'r': case 'f': case '#': break;
+            case '"': return true;
+            default: return false;
         }
+        return false;
     }
 
     [[nodiscard]] inline Token getStringLiteral(u64& cursor) noexcept {
         const u64 origin = cursor;
-        switch (fileContent[cursor]) {
-            case 'b': cursor++; return detail::getStringLiteralTyped(cursor, Byte, origin);
-            case 'c': cursor++; return detail::getStringLiteralTyped(cursor, CStyle, origin);
-            case 'r': cursor++; return detail::getStringLiteralTyped(cursor, Raw, origin);
-            case 'f': cursor++; return detail::getStringLiteralTyped(cursor, Format, origin);
-            case '"': return detail::getStringLiteralTyped(cursor, Normal, origin);
-            default: //This should never happen, but just in case, we return an error token.
+        u64 fenceCount = 0;
+        StringType strlType;
+        bool invalid = false, gotOpeningQuote = false;
+        for (; cursor < fileContent.size(); cursor++) {
+            switch (fileContent[cursor]) {
+                case 'c':
+                    if (strlType.get(StringTypeFlags::CStyle)) invalid = true;
+                    else strlType.set(StringTypeFlags::CStyle); 
+                    break;
+                case 'r':
+                    if (strlType.get(StringTypeFlags::Raw)) invalid = true;
+                    else strlType.set(StringTypeFlags::Raw);
+                    break;
+                case 'f':
+                    if (strlType.get(StringTypeFlags::Format)) invalid = true;
+                    else strlType.set(StringTypeFlags::Format);
+                    break;
+                case '#':
+                    if (!strlType.get(StringTypeFlags::Raw)) invalid = true;
+                    fenceCount++;
+                    break;
+                case '"':
+                    gotOpeningQuote = true;
+                    break;
+                default: //This should never happen, but just in case, we instantly return an error token.
+                    cursor++;
+                    return {.type = MISC_ERROR, .payload = span(fileContent.data() + origin, cursor - origin)};
+            }
+            if (gotOpeningQuote) {
+                if (strlType.get(StringTypeFlags::CStyle) && strlType.get(StringTypeFlags::Format)) invalid = true;
                 cursor++;
-                return {.type = MISC_ERROR, .payload = span(fileContent.data() + origin, 1)};
+                break;
+            }
         }
+        bool escaping = false, tryingToCloseFence = false;
+        u64 tempFenceCount = 0;
+        for (; cursor < fileContent.size(); cursor++) {
+            if (
+                !strlType.get(StringTypeFlags::Raw)
+             && (fileContent[cursor] == '\n' || fileContent[cursor] == '\r')) {
+                //Unescaped newlines are not allowed in non-raw string literals.
+                return {.type = MISC_ERROR, .strlType = strlType, .payload = span(fileContent.data() + origin, cursor - origin)};
+            }
+            if (fileContent[cursor] == '#') {
+                if (strlType.get(StringTypeFlags::Raw) && tryingToCloseFence) {
+                    tempFenceCount++;
+                    if (tempFenceCount == fenceCount) {
+                        cursor++;
+                        return {.type = invalid ? MISC_ERROR : GN_STRING, .strlType = strlType, .payload = span(fileContent.data() + origin, cursor - origin)};
+                    }
+                }
+            }
+            else {
+                tryingToCloseFence = false;
+                tempFenceCount = 0;
+            }
+            if (fileContent[cursor] == '"') {
+                if (strlType.get(StringTypeFlags::Raw)) {
+                    if (fenceCount == 0) {
+                        cursor++;
+                        return {.type = invalid ? MISC_ERROR : GN_STRING, .strlType = strlType, .payload = span(fileContent.data() + origin, cursor - origin)};
+                    }
+                    else if (tryingToCloseFence) {
+                        tryingToCloseFence = false;
+                        tempFenceCount = 0;
+                    }
+                    else tryingToCloseFence = true;
+                }
+                else if (!escaping) {
+                    cursor++;
+                    return {.type = invalid ? MISC_ERROR : GN_STRING, .strlType = strlType, .payload = span(fileContent.data() + origin, cursor - origin)};
+                }
+            }
+            if (fileContent[cursor] == '\\') {
+                escaping = !escaping;
+                strlType.set(StringTypeFlags::Escaped);
+            }
+            else escaping = false;
+        }
+        //EOF reached.
+        return {.type = MISC_ERROR, .strlType = strlType, .payload = span(fileContent.data() + origin, cursor - origin)};
     }
 }
