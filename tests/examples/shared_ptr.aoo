@@ -1,0 +1,51 @@
+module std;
+
+type ControlBlock<type T> {
+public:
+    T! value;
+    u64 strongCount;
+}
+
+export type shared_ptr<type T> {
+    dup = void;
+
+    ControlBlock<T>!* cb = 0;
+
+    public shared_ptr<T> adopt(~T! obj) => shared_ptr<T>{
+        cb = mem:alloc<ControlBlock<T>>(obj, 1);
+    };
+
+    void release(self!) {
+        if (!self.cb) return;
+        self.cb->strongCount--;
+        if self.cb->strongCount == 0 {
+            if (Drop<T>) self.cb->value.drop();
+            mem:free(self.cb);
+            self.cb = 0;
+        }
+    }
+
+    public shared_ptr<T> share(self) {
+        if (!self.cb) return shared_ptr<T>{};
+        self.cb->strongCount++;
+        return shared_ptr<T>{ cb := self.cb };
+    }
+
+    public T!* get(self) => self.cb ?: &self.cb->value :: 0;
+    public u64 useCount(self) => self.cb ?: self.cb->strongCount :: 0;
+    op bool(self) => self.cb != 0;
+    bool op==(self, shared_ptr<T> other) => self.cb == other.cb;
+
+    trait Drop {
+        void drop(~self!) => self.release();
+    }
+
+    trait Clone if Clone<T> {
+        shared_ptr<T> clone(self) => self.cb ?: adopt(self.cb->value.clone()) :: shared_ptr<T>{};
+    }
+}
+
+//The trait is equivalent to this:
+//trait Clone in shared_ptr<T> if Clone<T> {
+//    shared_ptr<T> clone(self) => self.cb ?: adopt(self.cb->value.clone()) :: shared_ptr<T>{};
+//}
