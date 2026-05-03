@@ -61,12 +61,10 @@ namespace AOO::Lexer {
 
         OP_LESS,                    // <
         OP_LESS_EQUAL,              // <=
-        OP_DOUBLE_LESS,             // <<
         OP_DOUBLE_LESS_EQUAL,       // <<=
 
         OP_GREATER,                 // >
         OP_GREATER_EQUAL,           // >=
-        OP_DOUBLE_GREATER,          // >>
         OP_DOUBLE_GREATER_EQUAL,    // >>=
 
         OP_BAR,                     // |
@@ -111,60 +109,60 @@ namespace AOO::Lexer {
         CH_RIGHT_BRACKET,           // ]
 
         //Binary literals
-        GN_BINARY_INT,
-        GN_BINARY_INT_U8,
-        GN_BINARY_INT_U16,
-        GN_BINARY_INT_U32,
-        GN_BINARY_INT_U64,
-        GN_BINARY_INT_I8,
-        GN_BINARY_INT_I16,
-        GN_BINARY_INT_I32,
-        GN_BINARY_INT_I64,
+        LT_BINARY_INT,
+        LT_BINARY_INT_U8,
+        LT_BINARY_INT_U16,
+        LT_BINARY_INT_U32,
+        LT_BINARY_INT_U64,
+        LT_BINARY_INT_I8,
+        LT_BINARY_INT_I16,
+        LT_BINARY_INT_I32,
+        LT_BINARY_INT_I64,
 
         //Octal literals
-        GN_OCTAL_INT,
-        GN_OCTAL_INT_U8,
-        GN_OCTAL_INT_U16,
-        GN_OCTAL_INT_U32,
-        GN_OCTAL_INT_U64,
-        GN_OCTAL_INT_I8,
-        GN_OCTAL_INT_I16,
-        GN_OCTAL_INT_I32,
-        GN_OCTAL_INT_I64,
+        LT_OCTAL_INT,
+        LT_OCTAL_INT_U8,
+        LT_OCTAL_INT_U16,
+        LT_OCTAL_INT_U32,
+        LT_OCTAL_INT_U64,
+        LT_OCTAL_INT_I8,
+        LT_OCTAL_INT_I16,
+        LT_OCTAL_INT_I32,
+        LT_OCTAL_INT_I64,
 
         //Decimal literals
-        GN_DECIMAL_INT,
-        GN_DECIMAL_INT_U8,
-        GN_DECIMAL_INT_U16,
-        GN_DECIMAL_INT_U32,
-        GN_DECIMAL_INT_U64,
-        GN_DECIMAL_INT_I8,
-        GN_DECIMAL_INT_I16,
-        GN_DECIMAL_INT_I32,
-        GN_DECIMAL_INT_I64,
-        GN_DECIMAL_FLOAT,
-        GN_DECIMAL_FLOAT_F32,
-        GN_DECIMAL_FLOAT_F64,
+        LT_DECIMAL_INT,
+        LT_DECIMAL_INT_U8,
+        LT_DECIMAL_INT_U16,
+        LT_DECIMAL_INT_U32,
+        LT_DECIMAL_INT_U64,
+        LT_DECIMAL_INT_I8,
+        LT_DECIMAL_INT_I16,
+        LT_DECIMAL_INT_I32,
+        LT_DECIMAL_INT_I64,
+        LT_DECIMAL_FLOAT,
+        LT_DECIMAL_FLOAT_F32,
+        LT_DECIMAL_FLOAT_F64,
 
         //Hexadecimal literals
-        GN_HEX_INT,
-        GN_HEX_INT_U8,
-        GN_HEX_INT_U16,
-        GN_HEX_INT_U32,
-        GN_HEX_INT_U64,
-        GN_HEX_INT_I8,
-        GN_HEX_INT_I16,
-        GN_HEX_INT_I32,
-        GN_HEX_INT_I64,
-        GN_HEX_FLOAT,
-        GN_HEX_FLOAT_F32,
-        GN_HEX_FLOAT_F64,
+        LT_HEX_INT,
+        LT_HEX_INT_U8,
+        LT_HEX_INT_U16,
+        LT_HEX_INT_U32,
+        LT_HEX_INT_U64,
+        LT_HEX_INT_I8,
+        LT_HEX_INT_I16,
+        LT_HEX_INT_I32,
+        LT_HEX_INT_I64,
+        LT_HEX_FLOAT,
+        LT_HEX_FLOAT_F32,
+        LT_HEX_FLOAT_F64,
 
         //Other literals
-        GN_CHAR,
-        GN_STRING,
-        GN_IDENTIFIER,
-        GN_LABEL,
+        LT_CHAR,
+        LT_STRING,
+        LT_IDENTIFIER,
+        LT_LABEL,
 
         //Misc
         MISC_WHITESPACE,
@@ -215,11 +213,9 @@ namespace AOO::Lexer {
             case OP_PERCENT_EQUAL: return "OP_PERCENT_EQUAL";
             case OP_LESS: return "OP_LESS";
             case OP_LESS_EQUAL: return "OP_LESS_EQUAL";
-            case OP_DOUBLE_LESS: return "OP_DOUBLE_LESS";
             case OP_DOUBLE_LESS_EQUAL: return "OP_DOUBLE_LESS_EQUAL";
             case OP_GREATER: return "OP_GREATER";
             case OP_GREATER_EQUAL: return "OP_GREATER_EQUAL";
-            case OP_DOUBLE_GREATER: return "OP_DOUBLE_GREATER";
             case OP_DOUBLE_GREATER_EQUAL: return "OP_DOUBLE_GREATER_EQUAL";
             case OP_BAR: return "OP_BAR";
             case OP_DOUBLE_BAR: return "OP_DOUBLE_BAR";
@@ -254,56 +250,56 @@ namespace AOO::Lexer {
             case CH_LEFT_BRACKET: return "CH_LEFT_BRACKET";
             case CH_RIGHT_BRACKET: return "CH_RIGHT_BRACKET";
             //Binary literals
-            case GN_BINARY_INT: return "GN_BINARY_INT";
-            case GN_BINARY_INT_U8: return "GN_BINARY_INT_U8";
-            case GN_BINARY_INT_U16: return "GN_BINARY_INT_U16";
-            case GN_BINARY_INT_U32: return "GN_BINARY_INT_U32";
-            case GN_BINARY_INT_U64: return "GN_BINARY_INT_U64";
-            case GN_BINARY_INT_I8: return "GN_BINARY_INT_I8";
-            case GN_BINARY_INT_I16: return "GN_BINARY_INT_I16";
-            case GN_BINARY_INT_I32: return "GN_BINARY_INT_I32";
-            case GN_BINARY_INT_I64: return "GN_BINARY_INT_I64";
+            case LT_BINARY_INT: return "LT_BINARY_INT";
+            case LT_BINARY_INT_U8: return "LT_BINARY_INT_U8";
+            case LT_BINARY_INT_U16: return "LT_BINARY_INT_U16";
+            case LT_BINARY_INT_U32: return "LT_BINARY_INT_U32";
+            case LT_BINARY_INT_U64: return "LT_BINARY_INT_U64";
+            case LT_BINARY_INT_I8: return "LT_BINARY_INT_I8";
+            case LT_BINARY_INT_I16: return "LT_BINARY_INT_I16";
+            case LT_BINARY_INT_I32: return "LT_BINARY_INT_I32";
+            case LT_BINARY_INT_I64: return "LT_BINARY_INT_I64";
             //Octal literals
-            case GN_OCTAL_INT: return "GN_OCTAL_INT";
-            case GN_OCTAL_INT_U8: return "GN_OCTAL_INT_U8";
-            case GN_OCTAL_INT_U16: return "GN_OCTAL_INT_U16";
-            case GN_OCTAL_INT_U32: return "GN_OCTAL_INT_U32";
-            case GN_OCTAL_INT_U64: return "GN_OCTAL_INT_U64";
-            case GN_OCTAL_INT_I8: return "GN_OCTAL_INT_I8";
-            case GN_OCTAL_INT_I16: return "GN_OCTAL_INT_I16";
-            case GN_OCTAL_INT_I32: return "GN_OCTAL_INT_I32";
-            case GN_OCTAL_INT_I64: return "GN_OCTAL_INT_I64";
+            case LT_OCTAL_INT: return "LT_OCTAL_INT";
+            case LT_OCTAL_INT_U8: return "LT_OCTAL_INT_U8";
+            case LT_OCTAL_INT_U16: return "LT_OCTAL_INT_U16";
+            case LT_OCTAL_INT_U32: return "LT_OCTAL_INT_U32";
+            case LT_OCTAL_INT_U64: return "LT_OCTAL_INT_U64";
+            case LT_OCTAL_INT_I8: return "LT_OCTAL_INT_I8";
+            case LT_OCTAL_INT_I16: return "LT_OCTAL_INT_I16";
+            case LT_OCTAL_INT_I32: return "LT_OCTAL_INT_I32";
+            case LT_OCTAL_INT_I64: return "LT_OCTAL_INT_I64";
             //Decimal literals
-            case GN_DECIMAL_INT: return "GN_DECIMAL_INT";
-            case GN_DECIMAL_INT_U8: return "GN_DECIMAL_INT_U8";
-            case GN_DECIMAL_INT_U16: return "GN_DECIMAL_INT_U16";
-            case GN_DECIMAL_INT_U32: return "GN_DECIMAL_INT_U32";
-            case GN_DECIMAL_INT_U64: return "GN_DECIMAL_INT_U64";
-            case GN_DECIMAL_INT_I8: return "GN_DECIMAL_INT_I8";
-            case GN_DECIMAL_INT_I16: return "GN_DECIMAL_INT_I16";
-            case GN_DECIMAL_INT_I32: return "GN_DECIMAL_INT_I32";
-            case GN_DECIMAL_INT_I64: return "GN_DECIMAL_INT_I64";
-            case GN_DECIMAL_FLOAT: return "GN_DECIMAL_FLOAT";
-            case GN_DECIMAL_FLOAT_F32: return "GN_DECIMAL_FLOAT_F32";
-            case GN_DECIMAL_FLOAT_F64: return "GN_DECIMAL_FLOAT_F64";
+            case LT_DECIMAL_INT: return "LT_DECIMAL_INT";
+            case LT_DECIMAL_INT_U8: return "LT_DECIMAL_INT_U8";
+            case LT_DECIMAL_INT_U16: return "LT_DECIMAL_INT_U16";
+            case LT_DECIMAL_INT_U32: return "LT_DECIMAL_INT_U32";
+            case LT_DECIMAL_INT_U64: return "LT_DECIMAL_INT_U64";
+            case LT_DECIMAL_INT_I8: return "LT_DECIMAL_INT_I8";
+            case LT_DECIMAL_INT_I16: return "LT_DECIMAL_INT_I16";
+            case LT_DECIMAL_INT_I32: return "LT_DECIMAL_INT_I32";
+            case LT_DECIMAL_INT_I64: return "LT_DECIMAL_INT_I64";
+            case LT_DECIMAL_FLOAT: return "LT_DECIMAL_FLOAT";
+            case LT_DECIMAL_FLOAT_F32: return "LT_DECIMAL_FLOAT_F32";
+            case LT_DECIMAL_FLOAT_F64: return "LT_DECIMAL_FLOAT_F64";
             //Hexadecimal literals
-            case GN_HEX_INT: return "GN_HEX_INT";
-            case GN_HEX_INT_U8: return "GN_HEX_INT_U8";
-            case GN_HEX_INT_U16: return "GN_HEX_INT_U16";
-            case GN_HEX_INT_U32: return "GN_HEX_INT_U32";
-            case GN_HEX_INT_U64: return "GN_HEX_INT_U64";
-            case GN_HEX_INT_I8: return "GN_HEX_INT_I8";
-            case GN_HEX_INT_I16: return "GN_HEX_INT_I16";
-            case GN_HEX_INT_I32: return "GN_HEX_INT_I32";
-            case GN_HEX_INT_I64: return "GN_HEX_INT_I64";
-            case GN_HEX_FLOAT: return "GN_HEX_FLOAT";
-            case GN_HEX_FLOAT_F32: return "GN_HEX_FLOAT_F32";
-            case GN_HEX_FLOAT_F64: return "GN_HEX_FLOAT_F64";
+            case LT_HEX_INT: return "LT_HEX_INT";
+            case LT_HEX_INT_U8: return "LT_HEX_INT_U8";
+            case LT_HEX_INT_U16: return "LT_HEX_INT_U16";
+            case LT_HEX_INT_U32: return "LT_HEX_INT_U32";
+            case LT_HEX_INT_U64: return "LT_HEX_INT_U64";
+            case LT_HEX_INT_I8: return "LT_HEX_INT_I8";
+            case LT_HEX_INT_I16: return "LT_HEX_INT_I16";
+            case LT_HEX_INT_I32: return "LT_HEX_INT_I32";
+            case LT_HEX_INT_I64: return "LT_HEX_INT_I64";
+            case LT_HEX_FLOAT: return "LT_HEX_FLOAT";
+            case LT_HEX_FLOAT_F32: return "LT_HEX_FLOAT_F32";
+            case LT_HEX_FLOAT_F64: return "LT_HEX_FLOAT_F64";
             //Other literals
-            case GN_CHAR: return "GN_CHAR";
-            case GN_STRING: return "GN_STRING";
-            case GN_IDENTIFIER: return "GN_IDENTIFIER";
-            case GN_LABEL: return "GN_LABEL";
+            case LT_CHAR: return "LT_CHAR";
+            case LT_STRING: return "LT_STRING";
+            case LT_IDENTIFIER: return "LT_IDENTIFIER";
+            case LT_LABEL: return "LT_LABEL";
             //Misc
             case MISC_WHITESPACE: return "MISC_WHITESPACE";
             case MISC_EOF: return "MISC_EOF";
@@ -350,10 +346,10 @@ namespace AOO::Lexer {
     inline ostream& operator<<(ostream& os, const Token& token) noexcept {
         using enum TokenType;
         os << "Tk: " << token.type << ", ";
-        if (token.type == GN_STRING) os << "StrlType: " << token.strlType << ", ";
+        if (token.type == LT_STRING) os << "StrlType: " << token.strlType << ", ";
         os << '"';
         switch (token.type) {
-            case GN_CHAR: os << token.charPayload; break;
+            case LT_CHAR: os << token.charPayload; break;
             default: os << string(token.payload.begin(), token.payload.end()); break;
         }
         os << '"';

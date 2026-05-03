@@ -70,7 +70,7 @@ namespace AOO::Lexer {
                     tempFenceCount++;
                     if (tempFenceCount == fenceCount) {
                         cursor++;
-                        return {.type = invalid ? MISC_ERROR : GN_STRING, .strlType = strlType, .payload = span(fileContent.data() + origin, cursor - origin)};
+                        return {.type = invalid ? MISC_ERROR : LT_STRING, .strlType = strlType, .payload = span(fileContent.data() + origin, cursor - origin)};
                     }
                 }
             }
@@ -82,7 +82,7 @@ namespace AOO::Lexer {
                 if (strlType.get(StringTypeFlags::Raw)) {
                     if (fenceCount == 0) {
                         cursor++;
-                        return {.type = invalid ? MISC_ERROR : GN_STRING, .strlType = strlType, .payload = span(fileContent.data() + origin, cursor - origin)};
+                        return {.type = invalid ? MISC_ERROR : LT_STRING, .strlType = strlType, .payload = span(fileContent.data() + origin, cursor - origin)};
                     }
                     else if (tryingToCloseFence) {
                         tryingToCloseFence = false;
@@ -92,7 +92,7 @@ namespace AOO::Lexer {
                 }
                 else if (!escaping) {
                     cursor++;
-                    return {.type = invalid ? MISC_ERROR : GN_STRING, .strlType = strlType, .payload = span(fileContent.data() + origin, cursor - origin)};
+                    return {.type = invalid ? MISC_ERROR : LT_STRING, .strlType = strlType, .payload = span(fileContent.data() + origin, cursor - origin)};
                 }
             }
             if (fileContent[cursor] == '\\') {

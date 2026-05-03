@@ -46,15 +46,15 @@ namespace AOO::Lexer {
     [[nodiscard]] inline Token convertStateToToken(bool isFloatingPoint, Base base, TypeSize typeSize, const span<const u8> literal) noexcept {
         if (isFloatingPoint) {
             if (base == Decimal) switch (typeSize) {
-                case TypeSize::None: return {.type = GN_DECIMAL_FLOAT, .payload = literal};
-                case TypeSize::F32: return {.type = GN_DECIMAL_FLOAT_F32, .payload = literal};
-                case TypeSize::F64: return {.type = GN_DECIMAL_FLOAT_F64, .payload = literal};
+                case TypeSize::None: return {.type = LT_DECIMAL_FLOAT, .payload = literal};
+                case TypeSize::F32: return {.type = LT_DECIMAL_FLOAT_F32, .payload = literal};
+                case TypeSize::F64: return {.type = LT_DECIMAL_FLOAT_F64, .payload = literal};
                 default: return {.type = MISC_ERROR, .payload = literal};
             }
             else if (base == Hexadecimal) switch (typeSize) {
-                case TypeSize::None: return {.type = GN_HEX_FLOAT, .payload = literal};
-                case TypeSize::F32: return {.type = GN_HEX_FLOAT_F32, .payload = literal};
-                case TypeSize::F64: return {.type = GN_HEX_FLOAT_F64, .payload = literal};
+                case TypeSize::None: return {.type = LT_HEX_FLOAT, .payload = literal};
+                case TypeSize::F32: return {.type = LT_HEX_FLOAT_F32, .payload = literal};
+                case TypeSize::F64: return {.type = LT_HEX_FLOAT_F64, .payload = literal};
                 default: return {.type = MISC_ERROR, .payload = literal};
             }
             //Only Decimal and Hexadecimal can be floating-point, and floating point number literals cannot have integer typesize suffixes. Funny enough, this is the only place where this rule is enforced.
@@ -63,57 +63,57 @@ namespace AOO::Lexer {
         else switch (base) {
             case Binary:
                 switch (typeSize) {
-                    case TypeSize::None: return {.type = GN_BINARY_INT, .payload = literal};
-                    case TypeSize::U8: return {.type = GN_BINARY_INT_U8, .payload = literal};
-                    case TypeSize::U16: return {.type = GN_BINARY_INT_U16, .payload = literal};
-                    case TypeSize::U32: return {.type = GN_BINARY_INT_U32, .payload = literal};
-                    case TypeSize::U64: return {.type = GN_BINARY_INT_U64, .payload = literal};
-                    case TypeSize::I8: return {.type = GN_BINARY_INT_I8, .payload = literal};
-                    case TypeSize::I16: return {.type = GN_BINARY_INT_I16, .payload = literal};
-                    case TypeSize::I32: return {.type = GN_BINARY_INT_I32, .payload = literal};
-                    case TypeSize::I64: return {.type = GN_BINARY_INT_I64, .payload = literal};
+                    case TypeSize::None: return {.type = LT_BINARY_INT, .payload = literal};
+                    case TypeSize::U8: return {.type = LT_BINARY_INT_U8, .payload = literal};
+                    case TypeSize::U16: return {.type = LT_BINARY_INT_U16, .payload = literal};
+                    case TypeSize::U32: return {.type = LT_BINARY_INT_U32, .payload = literal};
+                    case TypeSize::U64: return {.type = LT_BINARY_INT_U64, .payload = literal};
+                    case TypeSize::I8: return {.type = LT_BINARY_INT_I8, .payload = literal};
+                    case TypeSize::I16: return {.type = LT_BINARY_INT_I16, .payload = literal};
+                    case TypeSize::I32: return {.type = LT_BINARY_INT_I32, .payload = literal};
+                    case TypeSize::I64: return {.type = LT_BINARY_INT_I64, .payload = literal};
                     default: return {.type = MISC_ERROR, .payload = literal};
                 }
                 break;
             case Octal:
                 switch (typeSize) {
-                    case TypeSize::None: return {.type = GN_OCTAL_INT, .payload = literal};
-                    case TypeSize::U8: return {.type = GN_OCTAL_INT_U8, .payload = literal};
-                    case TypeSize::U16: return {.type = GN_OCTAL_INT_U16, .payload = literal};
-                    case TypeSize::U32: return {.type = GN_OCTAL_INT_U32, .payload = literal};
-                    case TypeSize::U64: return {.type = GN_OCTAL_INT_U64, .payload = literal};
-                    case TypeSize::I8: return {.type = GN_OCTAL_INT_I8, .payload = literal};
-                    case TypeSize::I16: return {.type = GN_OCTAL_INT_I16, .payload = literal};
-                    case TypeSize::I32: return {.type = GN_OCTAL_INT_I32, .payload = literal};
-                    case TypeSize::I64: return {.type = GN_OCTAL_INT_I64, .payload = literal};
+                    case TypeSize::None: return {.type = LT_OCTAL_INT, .payload = literal};
+                    case TypeSize::U8: return {.type = LT_OCTAL_INT_U8, .payload = literal};
+                    case TypeSize::U16: return {.type = LT_OCTAL_INT_U16, .payload = literal};
+                    case TypeSize::U32: return {.type = LT_OCTAL_INT_U32, .payload = literal};
+                    case TypeSize::U64: return {.type = LT_OCTAL_INT_U64, .payload = literal};
+                    case TypeSize::I8: return {.type = LT_OCTAL_INT_I8, .payload = literal};
+                    case TypeSize::I16: return {.type = LT_OCTAL_INT_I16, .payload = literal};
+                    case TypeSize::I32: return {.type = LT_OCTAL_INT_I32, .payload = literal};
+                    case TypeSize::I64: return {.type = GLT_OCTAL_INT_I64, .payload = literal};
                     default: return {.type = MISC_ERROR, .payload = literal};
                 }
                 break;
             case Decimal:
                 switch (typeSize) {
-                    case TypeSize::None: return {.type = GN_DECIMAL_INT, .payload = literal};
-                    case TypeSize::U8: return {.type = GN_DECIMAL_INT_U8, .payload = literal};
-                    case TypeSize::U16: return {.type = GN_DECIMAL_INT_U16, .payload = literal};
-                    case TypeSize::U32: return {.type = GN_DECIMAL_INT_U32, .payload = literal};
-                    case TypeSize::U64: return {.type = GN_DECIMAL_INT_U64, .payload = literal};
-                    case TypeSize::I8: return {.type = GN_DECIMAL_INT_I8, .payload = literal};
-                    case TypeSize::I16: return {.type = GN_DECIMAL_INT_I16, .payload = literal};
-                    case TypeSize::I32: return {.type = GN_DECIMAL_INT_I32, .payload = literal};
-                    case TypeSize::I64: return {.type = GN_DECIMAL_INT_I64, .payload = literal};
+                    case TypeSize::None: return {.type = LT_DECIMAL_INT, .payload = literal};
+                    case TypeSize::U8: return {.type = LT_DECIMAL_INT_U8, .payload = literal};
+                    case TypeSize::U16: return {.type = LT_DECIMAL_INT_U16, .payload = literal};
+                    case TypeSize::U32: return {.type = LT_DECIMAL_INT_U32, .payload = literal};
+                    case TypeSize::U64: return {.type = LT_DECIMAL_INT_U64, .payload = literal};
+                    case TypeSize::I8: return {.type = LT_DECIMAL_INT_I8, .payload = literal};
+                    case TypeSize::I16: return {.type = LT_DECIMAL_INT_I16, .payload = literal};
+                    case TypeSize::I32: return {.type = LT_DECIMAL_INT_I32, .payload = literal};
+                    case TypeSize::I64: return {.type = LT_DECIMAL_INT_I64, .payload = literal};
                     default: return {.type = MISC_ERROR, .payload = literal};
                 }
                 break;
             case Hexadecimal:
                 switch (typeSize) {
-                    case TypeSize::None: return {.type = GN_HEX_INT, .payload = literal};
-                    case TypeSize::U8: return {.type = GN_HEX_INT_U8, .payload = literal};
-                    case TypeSize::U16: return {.type = GN_HEX_INT_U16, .payload = literal};
-                    case TypeSize::U32: return {.type = GN_HEX_INT_U32, .payload = literal};
-                    case TypeSize::U64: return {.type = GN_HEX_INT_U64, .payload = literal};
-                    case TypeSize::I8: return {.type = GN_HEX_INT_I8, .payload = literal};
-                    case TypeSize::I16: return {.type = GN_HEX_INT_I16, .payload = literal};
-                    case TypeSize::I32: return {.type = GN_HEX_INT_I32, .payload = literal};
-                    case TypeSize::I64: return {.type = GN_HEX_INT_I64, .payload = literal};
+                    case TypeSize::None: return {.type = LT_HEX_INT, .payload = literal};
+                    case TypeSize::U8: return {.type = LT_HEX_INT_U8, .payload = literal};
+                    case TypeSize::U16: return {.type = LT_HEX_INT_U16, .payload = literal};
+                    case TypeSize::U32: return {.type = LT_HEX_INT_U32, .payload = literal};
+                    case TypeSize::U64: return {.type = LT_HEX_INT_U64, .payload = literal};
+                    case TypeSize::I8: return {.type = LT_HEX_INT_I8, .payload = literal};
+                    case TypeSize::I16: return {.type = LT_HEX_INT_I16, .payload = literal};
+                    case TypeSize::I32: return {.type = LT_HEX_INT_I32, .payload = literal};
+                    case TypeSize::I64: return {.type = LT_HEX_INT_I64, .payload = literal};
                     default: return {.type = MISC_ERROR, .payload = literal};
                 }
                 break;
@@ -163,7 +163,7 @@ namespace AOO::Lexer {
                             else { //Literal 0 at the end of the file.
                                 lastChar = '0';
                                 cursor++;
-                                return {.type = GN_DECIMAL_INT, .payload = span(fileContent.data() + origin, 1)};
+                                return {.type = LT_DECIMAL_INT, .payload = span(fileContent.data() + origin, 1)};
                             }
                             break;
                         case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9':

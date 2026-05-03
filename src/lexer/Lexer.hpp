@@ -131,42 +131,11 @@ namespace AOO::Lexer {
                 cursor++;
                 return {.type = OP_PERCENT};
             case '<':
-                if (cursor + 1 < fileContent.size()) {
-                    if (fileContent[cursor + 1] == '=') {
-                        cursor += 2;
-                        return {.type = OP_LESS_EQUAL};
-                    }
-                    else if (fileContent[cursor + 1] == '<') {
-                        if (cursor + 2 < fileContent.size() && fileContent[cursor + 2] == '=') {
-                            cursor += 3;
-                            return {.type = OP_DOUBLE_LESS_EQUAL};
-                        }
-                        else {
-                            cursor += 2;
-                            return {.type = OP_DOUBLE_LESS};
-                        }
-                    }
-                }
+                //Don't eat as multicharacter operators yet, because it might be in `op_<<<type T>` or something.
                 cursor++;
                 return {.type = OP_LESS};
             case '>':
                 //Don't eat as multicharacter operators yet, because it might be a generics closer. The classic vector<vector<int`>>` bug and all that.
-                /* if (cursor + 1 < fileContent.size()) {
-                    if (fileContent[cursor + 1] == '=') {
-                        cursor += 2;
-                        return {.type = OP_GREATER_EQUAL};
-                    }
-                    else if (fileContent[cursor + 1] == '>') {
-                        if (cursor + 2 < fileContent.size() && fileContent[cursor + 2] == '=') {
-                            cursor += 3;
-                            return {.type = OP_DOUBLE_GREATER_EQUAL};
-                        }
-                        else {
-                            cursor += 2;
-                            return {.type = OP_DOUBLE_GREATER};
-                        }
-                    }
-                } */
                 cursor++;
                 return {.type = OP_GREATER};
             case '|':

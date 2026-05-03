@@ -41,7 +41,7 @@ namespace AOO::Lexer {
             //-----------------------------
             else if (equals(str, "in")) return KW_IN;
             else if (equals(str, "dup")) return KW_DUP;
-            else return GN_IDENTIFIER;
+            else return LT_IDENTIFIER;
         }
     }
 
