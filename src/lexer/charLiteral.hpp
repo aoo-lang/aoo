@@ -97,112 +97,50 @@ namespace AOO::Lexer {
         else return {.type = MISC_ERROR, .payload = span(fileContent.data() + origin, cursor - origin)};
     }
 
+    //Recognizes '\u{HHHH}' (exactly 4 hex digits) and '\u{HHHHHHHH}' (exactly 8 hex digits).
+    //On entry: cursor points at the opening apostrophe; cursor[0]='\'', cursor[1]='\\', cursor[2]='u'.
     [[nodiscard]] inline Token getUnicodeEscapeSequence(u64& cursor) noexcept {
-        cursor += 2;
-        if (fileContent[cursor] == 'u') {
-            if (cursor + 5 < fileContent.size()) {
-                cursor++;
-                if (isHexDigit(fileContent[cursor]) && isHexDigit(fileContent[cursor + 1]) && isHexDigit(fileContent[cursor + 2]) && isHexDigit(fileContent[cursor + 3]) && fileContent[cursor + 4] == '\'') {
-                    const u16 value = static_cast<u16>(getHexValue(fileContent[cursor]) << 12) | static_cast<u16>(getHexValue(fileContent[cursor + 1]) << 8) | static_cast<u16>(getHexValue(fileContent[cursor + 2]) << 4) | static_cast<u16>(getHexValue(fileContent[cursor + 3]));
-                    cursor += 5;
-                    if (value > 255) return {.type = MISC_ERROR, .payload = span(fileContent.data() + cursor - 8, 8)};
-                    else return {.type = LT_CHAR, .charPayload = static_cast<u8>(value)};
-                }
-                //Invalid hex digits. Stop immediately! We cannot greedy by the stupid standard. Yes, we greedy on octal escape sequences when we encounter invalid digits but we don't on hex ones. How consistent.
-                else if (!isHexDigit(fileContent[cursor])) {
-                    cursor++;
-                    return {.type = MISC_ERROR, .payload = span(fileContent.data() + cursor - 4, 4)};
-                }
-                else if (!isHexDigit(fileContent[cursor + 1])) {
-                    cursor += 2;
-                    return {.type = MISC_ERROR, .payload = span(fileContent.data() + cursor - 5, 5)};
-                }
-                else if (!isHexDigit(fileContent[cursor + 2])) {
-                    cursor += 3;
-                    return {.type = MISC_ERROR, .payload = span(fileContent.data() + cursor - 6, 6)};
-                }
-                else if (!isHexDigit(fileContent[cursor + 3])) {
-                    cursor += 4;
-                    return {.type = MISC_ERROR, .payload = span(fileContent.data() + cursor - 7, 7)};
-                }
-                //Not ended after 4 hex digits.
-                else /*if (fileContent[cursor + 4] != '\'')*/ {
-                    cursor += 5;
-                    return greedyUntilAndErrorOut(cursor, '\'', cursor - 8);
-                }
-            }
-            else {
-                cursor++;
-                return greedyUntilAndErrorOut(cursor, '\'', cursor - 3);
-            }
+        const u64 origin = cursor;
+        cursor += 3; //Past '\'', '\\', 'u'.
+
+        //Expect '{'.
+        if (cursor >= fileContent.size() || fileContent[cursor] != '{') {
+            return greedyUntilAndErrorOut(cursor, '\'', origin);
         }
-        else /*if (fileContent[cursor] == 'U')*/ {
-            if (cursor + 9 < fileContent.size()) {
-                cursor++;
-                if (
-                    isHexDigit(fileContent[cursor])
-                 && isHexDigit(fileContent[cursor + 1])
-                 && isHexDigit(fileContent[cursor + 2])
-                 && isHexDigit(fileContent[cursor + 3])
-                 && isHexDigit(fileContent[cursor + 4])
-                 && isHexDigit(fileContent[cursor + 5])
-                 && isHexDigit(fileContent[cursor + 6])
-                 && isHexDigit(fileContent[cursor + 7])
-                 && fileContent[cursor + 8] == '\''
-                ) {
-                    const u32 value = static_cast<u32>(getHexValue(fileContent[cursor]) << 28) | static_cast<u32>(getHexValue(fileContent[cursor + 1]) << 24) | static_cast<u32>(getHexValue(fileContent[cursor + 2]) << 20) | static_cast<u32>(getHexValue(fileContent[cursor + 3]) << 16) | static_cast<u32>(getHexValue(fileContent[cursor + 4]) << 12) | static_cast<u32>(getHexValue(fileContent[cursor + 5]) << 8) | static_cast<u32>(getHexValue(fileContent[cursor + 6]) << 4) | static_cast<u32>(getHexValue(fileContent[cursor + 7]));
-                    cursor += 9;
-                    if (value > 255) return {.type = MISC_ERROR, .payload = span(fileContent.data() + cursor - 12, 12)};
-                    else return {.type = LT_CHAR, .charPayload = static_cast<u8>(value)};
-                }
-                //Invalid hex digits. Stop immediately! We cannot greedy by the stupid standard. Yes, we greedy on octal escape sequences when we encounter invalid digits but we don't on hex ones. How consistent.
-                else if (!isHexDigit(fileContent[cursor])) {
-                    cursor++;
-                    return {.type = MISC_ERROR, .payload = span(fileContent.data() + cursor - 4, 4)};
-                }
-                else if (!isHexDigit(fileContent[cursor + 1])) {
-                    cursor += 2;
-                    return {.type = MISC_ERROR, .payload = span(fileContent.data() + cursor - 5, 5)};
-                }
-                else if (!isHexDigit(fileContent[cursor + 2])) {
-                    cursor += 3;
-                    return {.type = MISC_ERROR, .payload = span(fileContent.data() + cursor - 6, 6)};
-                }
-                else if (!isHexDigit(fileContent[cursor + 3])) {
-                    cursor += 4;
-                    return {.type = MISC_ERROR, .payload = span(fileContent.data() + cursor - 7, 7)};
-                }
-                else if (!isHexDigit(fileContent[cursor + 4])) {
-                    cursor += 5;
-                    return {.type = MISC_ERROR, .payload = span(fileContent.data() + cursor - 8, 8)};
-                }
-                else if (!isHexDigit(fileContent[cursor + 5])) {
-                    cursor += 6;
-                    return {.type = MISC_ERROR, .payload = span(fileContent.data() + cursor - 9, 9)};
-                }
-                else if (!isHexDigit(fileContent[cursor + 6])) {
-                    cursor += 7;
-                    return {.type = MISC_ERROR, .payload = span(fileContent.data() + cursor - 10, 10)};
-                }
-                else if (!isHexDigit(fileContent[cursor + 7])) {
-                    cursor += 8;
-                    return {.type = MISC_ERROR, .payload = span(fileContent.data() + cursor - 11, 11)};
-                }
-                else if (!isHexDigit(fileContent[cursor + 8])) {
-                    cursor += 9;
-                    return {.type = MISC_ERROR, .payload = span(fileContent.data() + cursor - 12, 12)};
-                }
-                //Not ended after 4 hex digits.
-                else /*if (fileContent[cursor + 8] != '\'')*/ {
-                    cursor += 9;
-                    return greedyUntilAndErrorOut(cursor, '\'', cursor - 12);
-                }
+        cursor++;
+
+        //Read up to 8 hex digits.
+        u64 value = 0;
+        u64 digitCount = 0;
+        while (cursor < fileContent.size() && isHexDigit(fileContent[cursor])) {
+            if (digitCount >= 8) {
+                //More than 8 hex digits.
+                return greedyUntilAndErrorOut(cursor, '\'', origin);
             }
-            else {
-                cursor++;
-                return greedyUntilAndErrorOut(cursor, '\'', cursor - 3);
-            }
+            value = (value << 4) | static_cast<u64>(getHexValue(fileContent[cursor]));
+            digitCount++;
+            cursor++;
         }
+        //Only exactly 4 or exactly 8 hex digits are accepted.
+        if (digitCount != 4 && digitCount != 8) {
+            return greedyUntilAndErrorOut(cursor, '\'', origin);
+        }
+
+        //Expect '}'.
+        if (cursor >= fileContent.size() || fileContent[cursor] != '}') {
+            return greedyUntilAndErrorOut(cursor, '\'', origin);
+        }
+        cursor++;
+
+        //Expect closing '\''.
+        if (cursor >= fileContent.size() || fileContent[cursor] != '\'') {
+            return greedyUntilAndErrorOut(cursor, '\'', origin);
+        }
+        cursor++;
+
+        //Char literals hold a single byte; values > 255 are out of range.
+        if (value > 255) return {.type = MISC_ERROR, .payload = span(fileContent.data() + origin, cursor - origin)};
+        return {.type = LT_CHAR, .charPayload = static_cast<u8>(value)};
     }
 
     [[nodiscard]] inline Token getValidEscapedChar(u64& cursor, u8 escapedChar) noexcept {
@@ -240,7 +178,7 @@ namespace AOO::Lexer {
                     //Hexadecimal escape sequences.
                     case 'x': return getHexEscapeSequence(cursor);
                     //Unicode escape sequences.
-                    case 'u': case 'U': return getUnicodeEscapeSequence(cursor);
+                    case 'u': return getUnicodeEscapeSequence(cursor);
                     //Greedy until ' and error out.
                     default: {
                         cursor += 3;
