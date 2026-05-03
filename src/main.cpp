@@ -1,4 +1,4 @@
-﻿#include <iostream>
+#include <iostream>
 
 #include "boot/parseArguments.hpp"
 #include "currentFile.hpp"

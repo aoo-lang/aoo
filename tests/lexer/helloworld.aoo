@@ -1,9 +1,0 @@
-import std:io:{print, println};
-
-i32 main() {
-    print("Hello, world!\n\n");
-    for auto i = 0..10 {
-        println(f"{}", i);
-    }
-    return 0;
-}

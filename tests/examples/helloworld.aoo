@@ -1,0 +1,11 @@
+import std:io:print, std:io:println;
+import std:io:{print, println};
+import std:io:{print, ostream:{new, write, flush}};
+
+i32 main() {
+    println("Hello, world!\n\n");
+    for auto i in 0..10 {
+        println(f"{}", i);
+    }
+    return 0;
+}

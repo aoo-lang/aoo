@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 #include <ostream>
 #include <span>
 #include <string>

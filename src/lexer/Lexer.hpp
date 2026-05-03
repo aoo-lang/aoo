@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 #include <iostream>
 #include <span>
 #include <string>
@@ -44,7 +44,7 @@ namespace AOO::Lexer {
         switch (fileContent[cursor]) {
             //BOM mark `EF BB BF`
             case 239:
-                if (cursor + 2 < fileContent.size() && fileContent[cursor + 1] == 187 && fileContent[cursor + 2] == 191) {
+                if (cursor == 0 && fileContent.size() >= 3 && fileContent[1] == 187 && fileContent[2] == 191) {
                     cursor += 3;
                     return getNextToken();
                 }

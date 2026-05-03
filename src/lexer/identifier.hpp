@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "../currentFile.hpp"
 #include "../util/cmp.hpp"

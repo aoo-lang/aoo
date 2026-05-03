@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 #include <iostream>
 
 #include "../currentFile.hpp"
@@ -85,7 +85,7 @@ namespace AOO::Lexer {
                     case TypeSize::I8: return {.type = LT_OCTAL_INT_I8, .payload = literal};
                     case TypeSize::I16: return {.type = LT_OCTAL_INT_I16, .payload = literal};
                     case TypeSize::I32: return {.type = LT_OCTAL_INT_I32, .payload = literal};
-                    case TypeSize::I64: return {.type = GLT_OCTAL_INT_I64, .payload = literal};
+                    case TypeSize::I64: return {.type = LT_OCTAL_INT_I64, .payload = literal};
                     default: return {.type = MISC_ERROR, .payload = literal};
                 }
                 break;
@@ -232,6 +232,10 @@ namespace AOO::Lexer {
                             }
                             break;
                         case '.': //Fractional part.
+                            if (cursor + 1 < fileContent.size() && fileContent[cursor + 1] == '.') {
+                                state = Finished;
+                                break;
+                            }
                             if (state == FractionLoop || state == ExponentLoop) state = Error; //Multiple dots / dot after exponent indicator.
                             else if (base == Decimal) {
                                 if (!isValidDigitForBase(lastChar, Decimal)) state = Error;
