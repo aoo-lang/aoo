@@ -1,12 +1,17 @@
 #pragma once
 #include <array>
+#include <cstddef>
+#include <initializer_list>
+#include <vector>
 
+#include "../lexer/tokens.hpp"
+#include "ASTNodes.hpp"
+#include "Errors.hpp"
 #include "Speculation.hpp"
 #include "State.hpp"
 
 namespace AOO::Parser {
-    using Lexer::TokenType;
-    using std::array;
+    using std::array, Lexer::TokenType;
 
     // Forward declaration — defined further down.
     [[nodiscard]] inline u32 parseExpr(Parser& p, int rbp, ParseMode mode) noexcept;

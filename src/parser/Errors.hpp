@@ -5,7 +5,6 @@
 
 namespace AOO::Parser {
     typedef uint8_t u8;
-    typedef uint16_t u16;
     typedef uint32_t u32;
     using std::string_view, std::vector;
 
@@ -31,12 +30,10 @@ namespace AOO::Parser {
     };
 
     struct ParseError {
-        ErrorKind   kind;
-        u32         tokenIndex;
-        string_view detail;  // points into static strings — never owns
+        ErrorKind kind;
+        u32 tokenIndex;
+        string_view detail;
     };
-
-    using ErrorList = vector<ParseError>;
 
     [[nodiscard]] inline const char* tostring_ErrorKind(ErrorKind kind) noexcept {
         using enum ErrorKind;

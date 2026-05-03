@@ -1,5 +1,12 @@
 #pragma once
+#include <vector>
+
+#include "../lexer/tokens.hpp"
+#include "ASTNodes.hpp"
+#include "Errors.hpp"
 #include "Expressions.hpp"
+#include "Speculation.hpp"
+#include "State.hpp"
 
 namespace AOO::Parser {
     [[nodiscard]] inline u32 parseItem(Parser& p, u16 flags, bool memberScope) noexcept;

@@ -1,6 +1,8 @@
 #pragma once
+#include <cstdint>
 #include <span>
 #include <string>
+#include <utility>
 #include <boost/unordered/unordered_flat_map.hpp>
 
 namespace AOO::Parser {

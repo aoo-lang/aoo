@@ -1,7 +1,19 @@
 #pragma once
+#include <vector>
+
+#include "../lexer/tokens.hpp"
+#include "ASTNodes.hpp"
+#include "Errors.hpp"
+#include "Expressions.hpp"
+#include "Speculation.hpp"
+#include "State.hpp"
 #include "Statements.hpp"
 
 namespace AOO::Parser {
+    typedef uint32_t u32;
+    typedef uint64_t u64;
+    using std::vector, Lexer::TokenType, Lexer::Token;
+
     struct GenericParseResult {
         vector<u32> nodes;
         u32 count{0};

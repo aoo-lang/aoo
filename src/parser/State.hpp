@@ -1,5 +1,4 @@
 #pragma once
-#include <cstdint>
 #include <string_view>
 #include <vector>
 
@@ -15,10 +14,10 @@ namespace AOO::Parser {
 
     struct Parser {
         const vector<Token>& tokens;
-        AST&                 ast;
-        ErrorList&           errors;
-        u64                  cursor{0};
-        bool                 stopAtConditionBrace{false};
+        AST& ast;
+        vector<ParseError>& errors;
+        u64 cursor{0};
+        bool stopAtConditionBrace{false};
     };
 
     [[nodiscard]] inline bool isTrivia(TokenType t) noexcept {
