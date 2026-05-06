@@ -59,6 +59,21 @@ namespace AOO::Parser {
     [[nodiscard]] inline TokenType peekType(Parser& p) noexcept { return peek(p).type; }
     [[nodiscard]] inline TokenType peekTypeAhead(Parser& p, u64 n) noexcept { return peekAhead(p, n).type; }
 
+    [[nodiscard]] inline TokenType peekRawType(Parser& p) noexcept {
+        if (p.cursor >= p.tokens.size()) return TokenType::MISC_EOF;
+        return p.tokens[p.cursor].type;
+    }
+
+    inline void advanceRaw(Parser& p) noexcept {
+        if (p.cursor < p.tokens.size()) p.cursor++;
+    }
+
+    [[nodiscard]] inline bool matchRaw(Parser& p, TokenType t) noexcept {
+        if (peekRawType(p) != t) return false;
+        advanceRaw(p);
+        return true;
+    }
+
     [[nodiscard]] inline u32 currentTokenIndex(Parser& p) noexcept {
         skipTrivia(p);
         return static_cast<u32>(p.cursor);

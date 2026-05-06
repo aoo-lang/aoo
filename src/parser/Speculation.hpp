@@ -85,7 +85,6 @@ namespace AOO::Parser {
                     case OP_AMPERSAND_EQUAL:
                     case OP_CARET_EQUAL:
                     case OP_QUESTION_COLON:
-                    case OP_DOUBLE_QUESTION:
                     case OP_EQUAL_GREATER:
                     case OP_DOUBLE_PERIOD:
                     case OP_TRIPLE_PERIOD:
@@ -112,7 +111,7 @@ namespace AOO::Parser {
                         p.cursor = saved;
                         return false;
                     default:
-                        //Permissive: identifiers, literals, type keywords, , : :: * & ! !! ~
+                        //Permissive: identifiers, literals, type keywords, , : :: * & ! !! ~ ??
                         advance(p);
                         continue;
                 }
@@ -200,7 +199,7 @@ namespace AOO::Parser {
     //Grammar:
     //  Type   ::= Prefix* Atom Postfix*
     //  Prefix ::= '~'
-    //  Atom   ::= Ident GenericArgs? (':' Ident GenericArgs?)*  | 'void' | 'auto'
+    //  Atom   ::= Ident GenericArgs? (':' Ident GenericArgs?)*  | 'void' | 'auto' | '??'
     //  Post   ::= '*' | '!' | '!!' | '&'
     [[nodiscard]] inline bool tryParseType(Parser& p) noexcept {
         const u64 saved = p.cursor;
@@ -211,6 +210,7 @@ namespace AOO::Parser {
             case TokenType::LT_IDENTIFIER:
             case TokenType::KW_VOID:
             case TokenType::KW_AUTO:
+            case TokenType::OP_DOUBLE_QUESTION:
                 advance(p);
                 break;
             default:

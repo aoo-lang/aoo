@@ -235,6 +235,14 @@ namespace AOO::Parser {
             .firstChild = 0, .childCount = 0, .payload = 0});
     }
 
+    [[nodiscard]] inline u32 prefNoReturn(Parser& p, ParseMode /*mode*/) noexcept {
+        const u32 idx = currentTokenIndex(p);
+        advance(p);
+        return addNode(p.ast, ASTNode{
+            .kind = NodeKind::TypeNoReturn, .flags = 0, .tokenIndex = idx,
+            .firstChild = 0, .childCount = 0, .payload = 0});
+    }
+
     [[nodiscard]] inline u32 prefParen(Parser& p, ParseMode mode) noexcept {
         advance(p); //consume (
         const u32 inner = parseExpr(p, 0, mode);
@@ -308,6 +316,7 @@ namespace AOO::Parser {
     [[nodiscard]] inline u32 inBitAnd(Parser& p, u32 l, int rbp, ParseMode m) noexcept { return inSimpleBinary(p, l, rbp, m, LBP_BIT_AND, false, false, ErrorKind::InternalBug); }
     [[nodiscard]] inline u32 inBitOr(Parser& p, u32 l, int rbp, ParseMode m) noexcept  { return inSimpleBinary(p, l, rbp, m, LBP_BIT_OR,  false, false, ErrorKind::InternalBug); }
     [[nodiscard]] inline u32 inBitXor(Parser& p, u32 l, int rbp, ParseMode m) noexcept { return inSimpleBinary(p, l, rbp, m, LBP_BIT_XOR, false, false, ErrorKind::InternalBug); }
+    [[nodiscard]] inline u32 inShift(Parser& p, u32 l, int rbp, ParseMode m) noexcept  { return inSimpleBinary(p, l, rbp, m, LBP_SHIFT, false, false, ErrorKind::InternalBug); }
     [[nodiscard]] inline u32 inEqNeq(Parser& p, u32 l, int rbp, ParseMode m) noexcept  { return inSimpleBinary(p, l, rbp, m, LBP_COMPARE, false, true, ErrorKind::ComparisonChained); }
     [[nodiscard]] inline u32 inAssign(Parser& p, u32 l, int rbp, ParseMode m) noexcept { return inSimpleBinary(p, l, rbp, m, LBP_ASSIGN, true, false, ErrorKind::InternalBug); }
     [[nodiscard]] inline u32 inRange(Parser& p, u32 l, int rbp, ParseMode m) noexcept {
@@ -357,20 +366,6 @@ namespace AOO::Parser {
         return addNode(p.ast, ASTNode{
             .kind = NodeKind::TernaryQ, .flags = 0, .tokenIndex = opIdx,
             .firstChild = firstChild, .childCount = 3, .payload = 0});
-    }
-
-    //a ?? b   (binary fallback)
-    [[nodiscard]] inline u32 inTernaryQQ(Parser& p, u32 left, int rbp, ParseMode mode) noexcept {
-        if (LBP_TERNARY <= rbp) return left;
-        const u32 opIdx = currentTokenIndex(p);
-        advance(p);
-        const u32 fallback = parseExpr(p, LBP_TERNARY - 1, mode);
-        const u32 firstChild = reserveChildren(p.ast, 2);
-        p.ast.childIndices[firstChild + 0] = left;
-        p.ast.childIndices[firstChild + 1] = fallback;
-        return addNode(p.ast, ASTNode{
-            .kind = NodeKind::TernaryQQ, .flags = 0, .tokenIndex = opIdx,
-            .firstChild = firstChild, .childCount = 2, .payload = 0});
     }
 
     //Postfix: ! !! ++ --
@@ -559,27 +554,19 @@ namespace AOO::Parser {
         //Try `<<` / `<<=`
         const u32 firstIdx = currentTokenIndex(p);
         advance(p); //first '<'
-        if (peekType(p) == TokenType::OP_LESS) {
-            advance(p); //second '<'
-            if (peekType(p) == TokenType::OP_EQUAL) {
+        if (matchRaw(p, TokenType::OP_LESS)) {
+            if (matchRaw(p, TokenType::OP_EQUAL)) {
                 if (LBP_ASSIGN <= rbp) { p.cursor = saved; return left; }
-                advance(p); //'='
                 const u32 right = parseExpr(p, LBP_ASSIGN - 1, mode);
                 return makeBinaryOp(p, left, right, firstIdx, TokenType::OP_DOUBLE_LESS_EQUAL);
             }
             if (LBP_SHIFT <= rbp) { p.cursor = saved; return left; }
             const u32 right = parseExpr(p, LBP_SHIFT, mode);
-            //Synthesize fused token type for downstream consumers.
-            return makeBinaryOp(p, left, right, firstIdx, TokenType::OP_LESS /* keep as raw '<' for shift left we use a sentinel */);
-            //NOTE: lexer doesn't define a OP_DOUBLE_LESS token; we encode shift-left by storing
-            //the first '<' index plus payload OP_LESS. Downstream readers must look at the next
-            //token to distinguish shift from comparison, OR can use the BinaryOp's tokenIndex
-            //span (covers both '<' tokens).
+            return makeBinaryOp(p, left, right, firstIdx, TokenType::OP_DOUBLE_LESS);
         }
-        if (peekType(p) == TokenType::OP_EQUAL) {
+        if (matchRaw(p, TokenType::OP_EQUAL)) {
             //'<='
             if (LBP_COMPARE <= rbp) { p.cursor = saved; return left; }
-            advance(p);
             const u32 right = parseExpr(p, LBP_COMPARE, mode);
             const u32 node = makeBinaryOp(p, left, right, firstIdx, TokenType::OP_LESS_EQUAL);
             if (isComparison(peekType(p))) recordError(p, ErrorKind::ComparisonChained);
@@ -609,21 +596,18 @@ namespace AOO::Parser {
         const u64 saved = p.cursor;
         const u32 firstIdx = currentTokenIndex(p);
         advance(p);
-        if (peekType(p) == TokenType::OP_GREATER) {
-            advance(p);
-            if (peekType(p) == TokenType::OP_EQUAL) {
+        if (matchRaw(p, TokenType::OP_GREATER)) {
+            if (matchRaw(p, TokenType::OP_EQUAL)) {
                 if (LBP_ASSIGN <= rbp) { p.cursor = saved; return left; }
-                advance(p);
                 const u32 right = parseExpr(p, LBP_ASSIGN - 1, mode);
                 return makeBinaryOp(p, left, right, firstIdx, TokenType::OP_DOUBLE_GREATER_EQUAL);
             }
             if (LBP_SHIFT <= rbp) { p.cursor = saved; return left; }
             const u32 right = parseExpr(p, LBP_SHIFT, mode);
-            return makeBinaryOp(p, left, right, firstIdx, TokenType::OP_GREATER);
+            return makeBinaryOp(p, left, right, firstIdx, TokenType::OP_DOUBLE_GREATER);
         }
-        if (peekType(p) == TokenType::OP_EQUAL) {
+        if (matchRaw(p, TokenType::OP_EQUAL)) {
             if (LBP_COMPARE <= rbp) { p.cursor = saved; return left; }
-            advance(p);
             const u32 right = parseExpr(p, LBP_COMPARE, mode);
             const u32 node = makeBinaryOp(p, left, right, firstIdx, TokenType::OP_GREATER_EQUAL);
             if (isComparison(peekType(p))) recordError(p, ErrorKind::ComparisonChained);
@@ -715,6 +699,8 @@ namespace AOO::Parser {
         setIn(OP_BANG_EQUAL,   inEqNeq, LBP_COMPARE);
         setIn(OP_LESS,         inLess,    LBP_OP_LESS);
         setIn(OP_GREATER,      inGreater, LBP_OP_GREATER);
+        setIn(OP_DOUBLE_LESS,    inShift, LBP_SHIFT);
+        setIn(OP_DOUBLE_GREATER, inShift, LBP_SHIFT);
         //The lexer doesn't currently emit OP_LESS_EQUAL etc. directly, but we register
         //them in case future lex passes fuse them.
         setIn(OP_LESS_EQUAL,    inEqNeq, LBP_COMPARE);
@@ -730,6 +716,8 @@ namespace AOO::Parser {
         setIn(OP_AMPERSAND_EQUAL,  inAssign, LBP_ASSIGN);
         setIn(OP_BAR_EQUAL,        inAssign, LBP_ASSIGN);
         setIn(OP_CARET_EQUAL,      inAssign, LBP_ASSIGN);
+        setIn(OP_DOUBLE_LESS_EQUAL,    inAssign, LBP_ASSIGN);
+        setIn(OP_DOUBLE_GREATER_EQUAL, inAssign, LBP_ASSIGN);
 
         //Range
         setIn(OP_DOUBLE_PERIOD, inRange, LBP_RANGE);
@@ -737,7 +725,6 @@ namespace AOO::Parser {
 
         //Ternary
         setIn(OP_QUESTION_COLON, inTernaryQ,  LBP_TERNARY);
-        setIn(OP_DOUBLE_QUESTION, inTernaryQQ, LBP_TERNARY);
 
         //`as` cast
         setIn(KW_AS, inAs, LBP_AS);
@@ -774,6 +761,7 @@ namespace AOO::Parser {
         setPref(LT_IDENTIFIER, prefIdentifier);
         setPref(KW_VOID,       prefVoid);
         setPref(KW_AUTO,       prefAuto);
+        setPref(OP_DOUBLE_QUESTION, prefNoReturn);
         setPref(OP_TILDE,      prefUnary);
 
         setIn(OP_LESS,         inLess,         LBP_POSTFIX);

@@ -63,7 +63,6 @@ namespace AOO::Parser {
         UnaryPrefix,        //tokenIndex: op token; payload: TokenType; children: operand
         UnaryPostfix,       //tokenIndex: op token; payload: TokenType; children: operand
         TernaryQ,           //tokenIndex: '?:' token; children: cond, thenE, elseE
-        TernaryQQ,          //tokenIndex: '??' token; children: cond, fallback
         Call,               //children: callee, args...
         Index,              //children: target, index
         MemberAccess,       //tokenIndex: name token; children: target
@@ -86,6 +85,7 @@ namespace AOO::Parser {
         TypeConsumed,       //children: inner   (~T)
         TypeAuto,           //tokenIndex: KW_AUTO
         TypeVoid,           //tokenIndex: KW_VOID
+        TypeNoReturn,       //tokenIndex: OP_DOUBLE_QUESTION
 
         //Diagnostics
         Error,
@@ -202,7 +202,6 @@ namespace AOO::Parser {
             case UnaryPrefix: return "UnaryPrefix";
             case UnaryPostfix: return "UnaryPostfix";
             case TernaryQ: return "TernaryQ";
-            case TernaryQQ: return "TernaryQQ";
             case Call: return "Call";
             case Index: return "Index";
             case MemberAccess: return "MemberAccess";
@@ -223,6 +222,7 @@ namespace AOO::Parser {
             case TypeConsumed: return "TypeConsumed";
             case TypeAuto: return "TypeAuto";
             case TypeVoid: return "TypeVoid";
+            case TypeNoReturn: return "TypeNoReturn";
             case Error: return "Error";
             case Count: return "Count";
         }

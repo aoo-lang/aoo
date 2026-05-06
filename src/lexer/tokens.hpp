@@ -60,10 +60,12 @@ namespace AOO::Lexer {
         OP_PERCENT_EQUAL,           // %=
 
         OP_LESS,                    // <
+        OP_DOUBLE_LESS,             // <<
         OP_LESS_EQUAL,              // <=
         OP_DOUBLE_LESS_EQUAL,       // <<=
 
         OP_GREATER,                 // >
+        OP_DOUBLE_GREATER,          // >>
         OP_GREATER_EQUAL,           // >=
         OP_DOUBLE_GREATER_EQUAL,    // >>=
 
@@ -214,9 +216,11 @@ namespace AOO::Lexer {
             case OP_PERCENT: return "OP_PERCENT";
             case OP_PERCENT_EQUAL: return "OP_PERCENT_EQUAL";
             case OP_LESS: return "OP_LESS";
+            case OP_DOUBLE_LESS: return "OP_DOUBLE_LESS";
             case OP_LESS_EQUAL: return "OP_LESS_EQUAL";
             case OP_DOUBLE_LESS_EQUAL: return "OP_DOUBLE_LESS_EQUAL";
             case OP_GREATER: return "OP_GREATER";
+            case OP_DOUBLE_GREATER: return "OP_DOUBLE_GREATER";
             case OP_GREATER_EQUAL: return "OP_GREATER_EQUAL";
             case OP_DOUBLE_GREATER_EQUAL: return "OP_DOUBLE_GREATER_EQUAL";
             case OP_BAR: return "OP_BAR";

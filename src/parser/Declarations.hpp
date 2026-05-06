@@ -36,9 +36,11 @@ namespace AOO::Parser {
             case OP_SLASH:
             case OP_PERCENT:
             case OP_LESS:
+            case OP_DOUBLE_LESS:
             case OP_LESS_EQUAL:
             case OP_DOUBLE_LESS_EQUAL:
             case OP_GREATER:
+            case OP_DOUBLE_GREATER:
             case OP_GREATER_EQUAL:
             case OP_DOUBLE_GREATER_EQUAL:
             case OP_BAR:
@@ -53,7 +55,6 @@ namespace AOO::Parser {
             case OP_DOUBLE_EQUAL:
             case OP_BANG_EQUAL:
             case OP_QUESTION_COLON:
-            case OP_DOUBLE_QUESTION:
             case OP_COLON:
             case OP_DOUBLE_COLON:
             case OP_PERIOD:
@@ -241,7 +242,7 @@ namespace AOO::Parser {
         }
         opPayload = static_cast<u64>(peekType(p));
         advance(p);
-        while (isOperatorNameToken(peekType(p)) && peekType(p) != TokenType::LT_IDENTIFIER && peekType(p) != TokenType::CH_LEFT_PAREN) advance(p);
+        while (isOperatorNameToken(peekRawType(p)) && peekRawType(p) != TokenType::LT_IDENTIFIER && peekRawType(p) != TokenType::CH_LEFT_PAREN) advanceRaw(p);
         return tokIdx;
     }
 
