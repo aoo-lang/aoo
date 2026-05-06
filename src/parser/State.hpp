@@ -21,15 +21,17 @@ namespace AOO::Parser {
     };
 
     [[nodiscard]] inline bool isTrivia(TokenType t) noexcept {
-        return t == TokenType::MISC_WHITESPACE;
+        return t == TokenType::MISC_WHITESPACE
+            || t == TokenType::MISC_LINE_COMMENT
+            || t == TokenType::MISC_BLOCK_COMMENT;
     }
 
-    // Advance past whitespace tokens at the cursor.
+    //Advance past whitespace tokens at the cursor.
     inline void skipTrivia(Parser& p) noexcept {
         while (p.cursor < p.tokens.size() && isTrivia(p.tokens[p.cursor].type)) p.cursor++;
     }
 
-    // Peek the current non-trivia token. Returns a synthetic EOF token if past end.
+    //Peek the current non-trivia token. Returns a synthetic EOF token if past end.
     [[nodiscard]] inline const Token& peek(Parser& p) noexcept {
         skipTrivia(p);
         if (p.cursor >= p.tokens.size()) {
@@ -39,7 +41,7 @@ namespace AOO::Parser {
         return p.tokens[p.cursor];
     }
 
-    // Peek the n-th non-trivia token from the current cursor (0 = current).
+    //Peek the n-th non-trivia token from the current cursor (0 = current).
     [[nodiscard]] inline const Token& peekAhead(Parser& p, u64 n) noexcept {
         u64 i = p.cursor;
         while (i < p.tokens.size() && isTrivia(p.tokens[i].type)) i++;
@@ -84,21 +86,21 @@ namespace AOO::Parser {
         p.errors.push_back({.kind = kind, .tokenIndex = currentTokenIndex(p), .detail = detail});
     }
 
-    // Consume an expected token; record an error and do not advance if it does not match.
+    //Consume an expected token; record an error and do not advance if it does not match.
     inline bool expect(Parser& p, TokenType t, ErrorKind k, string_view detail = {}) noexcept {
         if (peekType(p) == t) { advance(p); return true; }
         recordError(p, k, detail);
         return false;
     }
 
-    // Build an error node at the current position and consume one token to make progress.
+    //Build an error node at the current position and consume one token to make progress.
     [[nodiscard]] inline u32 makeErrorNode(Parser& p) noexcept {
         const u32 tokIdx = currentTokenIndex(p);
         if (!atEnd(p)) advance(p);
         return addNode(p.ast, ASTNode{.kind = NodeKind::Error, .flags = FLAG_HAS_ERROR, .tokenIndex = tokIdx, .firstChild = 0, .childCount = 0, .payload = 0});
     }
 
-    // Resync to a delimiter that is reasonable for statement/decl recovery.
+    //Resync to a delimiter that is reasonable for statement/decl recovery.
     inline void resyncToStatementBoundary(Parser& p) noexcept {
         u32 depthParen = 0, depthBrace = 0, depthBracket = 0;
         while (!atEnd(p)) {

@@ -5,18 +5,16 @@
 namespace AOO::Parser {
     using Lexer::TokenType;
 
-    // Token-only walker. Cursor must be at OP_LESS (the opening '<').
-    // On success: returns true, cursor positioned at the token following the closing '>'.
-    // On failure: returns false, cursor restored.
+    //Token-only walker. Cursor must be at OP_LESS (the opening '<').
+    //On success: returns true, cursor positioned at the token following the closing '>'.
+    //On failure: returns false, cursor restored.
     //
-    // The walker accepts a permissive set of tokens at angle-depth 1 (top of generic
-    // args). Anything inside balanced (), [], {} is unconstrained. After consuming the
-    // matching '>', the next token must be in the commit set:
-    //     ( ) { } ] . : -> ; , ! * >
+    //The walker accepts a permissive set of tokens at angle-depth 1 (top of generic args). Anything inside balanced (), [], {} is unconstrained. After consuming the matching '>', the next token must be in the commit set:
+    //    ( ) { } ] . : -> ; , ! * >
     [[nodiscard]] inline bool tryParseGenericArgs(Parser& p) noexcept {
         const u64 saved = p.cursor;
         if (peekType(p) != TokenType::OP_LESS) return false;
-        advance(p); // consume opening '<'
+        advance(p); //consume opening '<'
         int angleDepth   = 1;
         int parenDepth   = 0;
         int braceDepth   = 0;
@@ -114,7 +112,7 @@ namespace AOO::Parser {
                         p.cursor = saved;
                         return false;
                     default:
-                        // Permissive: identifiers, literals, type keywords, , : :: * & ! !! ~
+                        //Permissive: identifiers, literals, type keywords, , : :: * & ! !! ~
                         advance(p);
                         continue;
                 }
@@ -145,9 +143,7 @@ namespace AOO::Parser {
         return false;
     }
 
-    // Token-only walker for generic arguments inside a known type expression. This
-    // does not use the expression commit set because a declaration name may legally
-    // follow the closing angle: `Vec<T> value`.
+    //Token-only walker for generic arguments inside a known type expression. This does not use the expression commit set because a declaration name may legally follow the closing angle: `Vec<T> value`.
     [[nodiscard]] inline bool tryParseTypeGenericArgs(Parser& p) noexcept {
         const u64 saved = p.cursor;
         if (peekType(p) != TokenType::OP_LESS) return false;
@@ -199,21 +195,18 @@ namespace AOO::Parser {
         return false;
     }
 
-    // Token-only walker for a type expression. Used at statement entry to disambiguate
-    // declarations from expression statements: if `tryParseType` succeeds and the next
-    // token is LT_IDENTIFIER, we parse as a declaration; otherwise as an expression
-    // statement.
+    //Token-only walker for a type expression. Used at statement entry to disambiguate declarations from expression statements: if `tryParseType` succeeds and the next token is LT_IDENTIFIER, we parse as a declaration; otherwise as an expression statement.
     //
-    // Grammar:
-    //   Type   ::= Prefix* Atom Postfix*
-    //   Prefix ::= '~'
-    //   Atom   ::= Ident GenericArgs? (':' Ident GenericArgs?)*  | 'void' | 'auto'
-    //   Post   ::= '*' | '!' | '!!' | '&'
+    //Grammar:
+    //  Type   ::= Prefix* Atom Postfix*
+    //  Prefix ::= '~'
+    //  Atom   ::= Ident GenericArgs? (':' Ident GenericArgs?)*  | 'void' | 'auto'
+    //  Post   ::= '*' | '!' | '!!' | '&'
     [[nodiscard]] inline bool tryParseType(Parser& p) noexcept {
         const u64 saved = p.cursor;
-        // Prefixes
+        //Prefixes
         while (peekType(p) == TokenType::OP_TILDE) advance(p);
-        // Atom
+        //Atom
         switch (peekType(p)) {
             case TokenType::LT_IDENTIFIER:
             case TokenType::KW_VOID:
@@ -224,7 +217,7 @@ namespace AOO::Parser {
                 p.cursor = saved;
                 return false;
         }
-        // Optional generic args + scope segments
+        //Optional generic args + scope segments
         for (;;) {
             if (peekType(p) == TokenType::OP_LESS) {
                 if (!tryParseTypeGenericArgs(p)) {
@@ -243,7 +236,7 @@ namespace AOO::Parser {
             }
             break;
         }
-        // Postfixes
+        //Postfixes
         for (;;) {
             const TokenType t = peekType(p);
             if (t == TokenType::OP_STAR

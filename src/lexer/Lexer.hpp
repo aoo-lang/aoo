@@ -98,27 +98,25 @@ namespace AOO::Lexer {
                         return {.type = OP_SLASH_EQUAL};
                     }
                     else if (fileContent[cursor + 1] == '/') {
-                        //Line comment, skip until end of line or end of file
+                        //Line comment: emit MISC_LINE_COMMENT trivia token (preserved for CST/IDE).
+                        //Payload includes the leading "//" and excludes the trailing newline.
+                        const u64 origin = cursor;
                         cursor += 2;
                         while (cursor < fileContent.size() && fileContent[cursor] != '\n') cursor++;
-                        if (cursor == fileContent.size()) return {.type = MISC_EOF};
-                        else return getNextToken();
+                        return {.type = MISC_LINE_COMMENT, .payload = span(fileContent.data() + origin, cursor - origin)};
                     }
                     else if (fileContent[cursor + 1] == '*') {
-                        //Multiline comment, skip until closing */
+                        //Block comment: emit MISC_BLOCK_COMMENT trivia token (preserved for CST/IDE).
+                        //Payload includes the leading "/*" and the trailing "*/" if present;
+                        //if the comment is unterminated, payload covers everything to EOF.
+                        const u64 origin = cursor;
                         cursor += 2;
-                        const u64 origin = cursor - 2;
                         while (cursor + 1 < fileContent.size() && !(fileContent[cursor] == '*' && fileContent[cursor + 1] == '/')) cursor++;
-                        if (cursor + 1 == fileContent.size()) {
-                            //Unterminated multiline comment
-                            //note: The file has ended, but comments don't have a token type and we need to return something, so we're forced to just return EOF.
-                            cursor++;
-                            return {.type = MISC_EOF};
-                        }
-                        else {
-                            cursor += 2;
-                            return getNextToken();
-                        }
+                        //consume the closing "*/"
+                        if (cursor + 1 < fileContent.size()) cursor += 2;
+                        //unterminated
+                        else cursor = fileContent.size();
+                        return {.type = MISC_BLOCK_COMMENT, .payload = span(fileContent.data() + origin, cursor - origin)};
                     }
                 }
                 cursor++;

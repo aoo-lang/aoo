@@ -13,17 +13,17 @@
 namespace AOO::Parser {
     using std::array, Lexer::TokenType;
 
-    // Forward declaration — defined further down.
+    //Forward declaration — defined further down.
     [[nodiscard]] inline u32 parseExpr(Parser& p, int rbp, ParseMode mode) noexcept;
 
-    // Type-mode entry point. Wraps parseExpr in type mode.
+    //Type-mode entry point. Wraps parseExpr in type mode.
     [[nodiscard]] inline u32 parseType(Parser& p) noexcept { return parseExpr(p, 0, ParseMode::Type); }
 
-    // Top-level expression entry (right binding power 0).
+    //Top-level expression entry (right binding power 0).
     [[nodiscard]] inline u32 parseExpression(Parser& p) noexcept { return parseExpr(p, 0, ParseMode::Value); }
 
-    // Convenience: parse a comma-separated list of expressions until the given closer.
-    // Caller is responsible for consuming the opening token; this consumes the closing token.
+    //Convenience: parse a comma-separated list of expressions until the given closer.
+    //Caller is responsible for consuming the opening token; this consumes the closing token.
     [[nodiscard]] inline vector<u32> parseExprList(Parser& p, TokenType closer, ParseMode mode) noexcept {
         vector<u32> out;
         if (peekType(p) == closer) { advance(p); return out; }
@@ -33,20 +33,20 @@ namespace AOO::Parser {
             break;
         }
         if (!expect(p, closer, ErrorKind::UnexpectedToken)) {
-            // Resync: just stop. Closer not present, leave cursor; caller may diagnose.
+            //Resync: just stop. Closer not present, leave cursor; caller may diagnose.
         }
         return out;
     }
 
-    // -------------------- precedence constants --------------------
+    //-------------------- precedence constants --------------------
 
     constexpr int LBP_NONE       = 0;
-    constexpr int LBP_ASSIGN     = 30;   // tier 3, right-assoc
-    constexpr int LBP_TERNARY    = 40;   // tier 4, right-assoc
-    constexpr int LBP_RANGE      = 50;   // tier 5, non-chain
-    constexpr int LBP_OR         = 60;   // tier 6, ||
-    constexpr int LBP_AND        = 70;   // tier 7, &&
-    constexpr int LBP_COMPARE    = 80;   // tier 8, non-chain
+    constexpr int LBP_ASSIGN     = 30;   //tier 3, right-assoc
+    constexpr int LBP_TERNARY    = 40;   //tier 4, right-assoc
+    constexpr int LBP_RANGE      = 50;   //tier 5, non-chain
+    constexpr int LBP_OR         = 60;   //tier 6, ||
+    constexpr int LBP_AND        = 70;   //tier 7, &&
+    constexpr int LBP_COMPARE    = 80;   //tier 8, non-chain
     constexpr int LBP_BIT_OR     = 90;
     constexpr int LBP_BIT_XOR    = 100;
     constexpr int LBP_BIT_AND    = 110;
@@ -54,19 +54,19 @@ namespace AOO::Parser {
     constexpr int LBP_ADD        = 130;
     constexpr int LBP_MUL        = 140;
     constexpr int LBP_AS         = 150;
-    constexpr int LBP_PREFIX_DUP = 155;  // tier 15.5
+    constexpr int LBP_PREFIX_DUP = 155;  //tier 15.5
     constexpr int LBP_PREFIX     = 160;
     constexpr int LBP_POSTFIX    = 170;
 
-    // OP_LESS may be: generic-app (170), shift-assign (30), shift (120), <= or < (80).
-    // Use the maximum so the loop calls the handler whenever it could plausibly fire.
+    //OP_LESS may be: generic-app (170), shift-assign (30), shift (120), <= or < (80).
+    //Use the maximum so the loop calls the handler whenever it could plausibly fire.
     constexpr int LBP_OP_LESS    = LBP_POSTFIX;
-    // OP_GREATER may be: shift-assign (30), shift (120), >= or > (80).
+    //OP_GREATER may be: shift-assign (30), shift (120), >= or > (80).
     constexpr int LBP_OP_GREATER = LBP_SHIFT;
 
-    // -------------------- helpers --------------------
+    //-------------------- helpers --------------------
 
-    // Build a binary-op node.
+    //Build a binary-op node.
     [[nodiscard]] inline u32 makeBinaryOp(Parser& p, u32 left, u32 right, u32 opTokenIdx, TokenType opType) noexcept {
         const u32 firstChild = reserveChildren(p.ast, 2);
         p.ast.childIndices[firstChild + 0] = left;
@@ -136,14 +136,18 @@ namespace AOO::Parser {
     [[nodiscard]] inline bool isIntLiteral(TokenType t) noexcept {
         using enum TokenType;
         switch (t) {
-            case LT_BINARY_INT: case LT_BINARY_INT_U8: case LT_BINARY_INT_U16: case LT_BINARY_INT_U32: case LT_BINARY_INT_U64:
+            case LT_BINARY_INT:
+            case LT_BINARY_INT_U8: case LT_BINARY_INT_U16: case LT_BINARY_INT_U32: case LT_BINARY_INT_U64:
             case LT_BINARY_INT_I8: case LT_BINARY_INT_I16: case LT_BINARY_INT_I32: case LT_BINARY_INT_I64:
-            case LT_OCTAL_INT:  case LT_OCTAL_INT_U8:  case LT_OCTAL_INT_U16:  case LT_OCTAL_INT_U32:  case LT_OCTAL_INT_U64:
-            case LT_OCTAL_INT_I8:  case LT_OCTAL_INT_I16:  case LT_OCTAL_INT_I32:  case LT_OCTAL_INT_I64:
-            case LT_DECIMAL_INT:  case LT_DECIMAL_INT_U8:  case LT_DECIMAL_INT_U16:  case LT_DECIMAL_INT_U32:  case LT_DECIMAL_INT_U64:
-            case LT_DECIMAL_INT_I8:  case LT_DECIMAL_INT_I16:  case LT_DECIMAL_INT_I32:  case LT_DECIMAL_INT_I64:
-            case LT_HEX_INT:  case LT_HEX_INT_U8:  case LT_HEX_INT_U16:  case LT_HEX_INT_U32:  case LT_HEX_INT_U64:
-            case LT_HEX_INT_I8:  case LT_HEX_INT_I16:  case LT_HEX_INT_I32:  case LT_HEX_INT_I64:
+            case LT_OCTAL_INT:
+            case LT_OCTAL_INT_U8: case LT_OCTAL_INT_U16: case LT_OCTAL_INT_U32: case LT_OCTAL_INT_U64:
+            case LT_OCTAL_INT_I8: case LT_OCTAL_INT_I16: case LT_OCTAL_INT_I32: case LT_OCTAL_INT_I64:
+            case LT_DECIMAL_INT:
+            case LT_DECIMAL_INT_U8: case LT_DECIMAL_INT_U16: case LT_DECIMAL_INT_U32: case LT_DECIMAL_INT_U64:
+            case LT_DECIMAL_INT_I8: case LT_DECIMAL_INT_I16: case LT_DECIMAL_INT_I32: case LT_DECIMAL_INT_I64:
+            case LT_HEX_INT:
+            case LT_HEX_INT_U8: case LT_HEX_INT_U16: case LT_HEX_INT_U32: case LT_HEX_INT_U64:
+            case LT_HEX_INT_I8: case LT_HEX_INT_I16: case LT_HEX_INT_I32: case LT_HEX_INT_I64:
                 return true;
             default: return false;
         }
@@ -155,7 +159,7 @@ namespace AOO::Parser {
             || t == LT_HEX_FLOAT     || t == LT_HEX_FLOAT_F32     || t == LT_HEX_FLOAT_F64;
     }
 
-    // -------------------- prefix handlers --------------------
+    //-------------------- prefix handlers --------------------
 
     [[nodiscard]] inline u32 prefIdentifier(Parser& p, ParseMode mode) noexcept {
         const u32 idx = currentTokenIndex(p);
@@ -232,10 +236,10 @@ namespace AOO::Parser {
     }
 
     [[nodiscard]] inline u32 prefParen(Parser& p, ParseMode mode) noexcept {
-        advance(p); // consume (
+        advance(p); //consume (
         const u32 inner = parseExpr(p, 0, mode);
         if (!expect(p, TokenType::CH_RIGHT_PAREN, ErrorKind::ExpectedRightParen)) {
-            // Best-effort: keep going.
+            //Best-effort: keep going.
         }
         return inner;
     }
@@ -243,7 +247,7 @@ namespace AOO::Parser {
     [[nodiscard]] inline u32 prefUnary(Parser& p, ParseMode mode) noexcept {
         const u32 idx = currentTokenIndex(p);
         const TokenType opType = peekType(p);
-        // Reject prefix !! per spec.
+        //Reject prefix !! per spec.
         if (opType == TokenType::OP_DOUBLE_BANG) {
             recordError(p, ErrorKind::BangBangPrefix, "'!!' is postfix-only; did you mean '!(!a)'?");
             return makeErrorNode(p);
@@ -254,7 +258,7 @@ namespace AOO::Parser {
         }
         advance(p);
         const u32 operand = parseExpr(p, LBP_PREFIX, mode);
-        // For `~` in type-mode, build TypeConsumed. Otherwise generic UnaryPrefix.
+        //For `~` in type-mode, build TypeConsumed. Otherwise generic UnaryPrefix.
         if (mode == ParseMode::Type && opType == TokenType::OP_TILDE) {
             const u32 firstChild = reserveChildren(p.ast, 1);
             p.ast.childIndices[firstChild] = operand;
@@ -276,9 +280,9 @@ namespace AOO::Parser {
             .firstChild = firstChild, .childCount = 1, .payload = 0});
     }
 
-    // -------------------- infix handlers --------------------
+    //-------------------- infix handlers --------------------
 
-    // Build a binary op consuming a single token.
+    //Build a binary op consuming a single token.
     [[nodiscard]] inline u32 inSimpleBinary(Parser& p, u32 left, int rbp, ParseMode mode, int lbp, bool rightAssoc, bool nonChain, ErrorKind chainErr) noexcept {
         if (lbp <= rbp) return left;
         const u32 opIdx = currentTokenIndex(p);
@@ -322,7 +326,7 @@ namespace AOO::Parser {
         return node;
     }
 
-    // `as` infix cast — RHS is type-mode.
+    //`as` infix cast — RHS is type-mode.
     [[nodiscard]] inline u32 inAs(Parser& p, u32 left, int rbp, ParseMode /*mode*/) noexcept {
         if (LBP_AS <= rbp) return left;
         const u32 opIdx = currentTokenIndex(p);
@@ -336,14 +340,14 @@ namespace AOO::Parser {
             .firstChild = firstChild, .childCount = 2, .payload = 0});
     }
 
-    // a ?: b :: c   (ternary)
+    //a ?: b :: c   (ternary)
     [[nodiscard]] inline u32 inTernaryQ(Parser& p, u32 cond, int rbp, ParseMode mode) noexcept {
         if (LBP_TERNARY <= rbp) return cond;
         const u32 opIdx = currentTokenIndex(p);
-        advance(p); // consume ?:
+        advance(p); //consume ?:
         const u32 thenE = parseExpr(p, LBP_TERNARY - 1, mode);
         if (!expect(p, TokenType::OP_DOUBLE_COLON, ErrorKind::UnexpectedToken, "expected '::' to close ternary")) {
-            // Continue best-effort.
+            //Continue best-effort.
         }
         const u32 elseE = parseExpr(p, LBP_TERNARY - 1, mode);
         const u32 firstChild = reserveChildren(p.ast, 3);
@@ -355,7 +359,7 @@ namespace AOO::Parser {
             .firstChild = firstChild, .childCount = 3, .payload = 0});
     }
 
-    // a ?? b   (binary fallback)
+    //a ?? b   (binary fallback)
     [[nodiscard]] inline u32 inTernaryQQ(Parser& p, u32 left, int rbp, ParseMode mode) noexcept {
         if (LBP_TERNARY <= rbp) return left;
         const u32 opIdx = currentTokenIndex(p);
@@ -369,13 +373,13 @@ namespace AOO::Parser {
             .firstChild = firstChild, .childCount = 2, .payload = 0});
     }
 
-    // Postfix: ! !! ++ --
+    //Postfix: ! !! ++ --
     [[nodiscard]] inline u32 inPostfixUnary(Parser& p, u32 left, int rbp, ParseMode mode) noexcept {
         if (LBP_POSTFIX <= rbp) return left;
         const u32 opIdx = currentTokenIndex(p);
         const TokenType opType = peekType(p);
         advance(p);
-        // In type-mode, postfix `!` `!!` `*` `&` build typed wrappers.
+        //In type-mode, postfix `!` `!!` `*` `&` build typed wrappers.
         if (mode == ParseMode::Type) {
             NodeKind k;
             switch (opType) {
@@ -394,7 +398,7 @@ namespace AOO::Parser {
         return makeUnaryPostfix(p, left, opIdx, opType);
     }
 
-    // Member access: . -> :
+    //Member access: . -> :
     [[nodiscard]] inline u32 inMemberAccess(Parser& p, u32 left, int rbp, ParseMode /*mode*/) noexcept {
         const TokenType opType = peekType(p);
         const u32 opIdx = currentTokenIndex(p);
@@ -406,7 +410,7 @@ namespace AOO::Parser {
             return makeBinaryOp(p, left, right, opIdx, TokenType::OP_COLON);
         }
         if (LBP_POSTFIX <= rbp) return left;
-        advance(p); // consume the access op
+        advance(p); //consume the access op
         const u32 nameIdx = currentTokenIndex(p);
         if (peekType(p) != TokenType::LT_IDENTIFIER) {
             recordError(p, ErrorKind::ExpectedIdentifier, "expected identifier after access op");
@@ -428,11 +432,11 @@ namespace AOO::Parser {
             .firstChild = firstChild, .childCount = 1, .payload = 0});
     }
 
-    // Call: callee ( args )
+    //Call: callee ( args )
     [[nodiscard]] inline u32 inCall(Parser& p, u32 callee, int rbp, ParseMode /*mode*/) noexcept {
         if (LBP_POSTFIX <= rbp) return callee;
         const u32 opIdx = currentTokenIndex(p);
-        advance(p); // (
+        advance(p); //(
         const auto args = parseExprList(p, TokenType::CH_RIGHT_PAREN, ParseMode::Value);
         vector<u32> kids;
         kids.reserve(args.size() + 1);
@@ -444,11 +448,11 @@ namespace AOO::Parser {
             .firstChild = firstChild, .childCount = static_cast<u32>(kids.size()), .payload = 0});
     }
 
-    // Index: target [ idx ]
+    //Index: target [ idx ]
     [[nodiscard]] inline u32 inIndex(Parser& p, u32 target, int rbp, ParseMode mode) noexcept {
         if (LBP_POSTFIX <= rbp) return target;
         const u32 opIdx = currentTokenIndex(p);
-        advance(p); // [
+        advance(p); //[
         const u32 idxExpr = parseExpr(p, 0, mode);
         if (!expect(p, TokenType::CH_RIGHT_BRACKET, ErrorKind::ExpectedRightBracket)) { /* best-effort */ }
         const u32 firstChild = reserveChildren(p.ast, 2);
@@ -459,15 +463,15 @@ namespace AOO::Parser {
             .firstChild = firstChild, .childCount = 2, .payload = 0});
     }
 
-    // Struct literal: type { field_inits... }
-    // Each field is one of:
-    //   IDENT  '='  expr          → assign (payload=1)
-    //   IDENT  ':=' expr          → copy-init (payload=2) -- written as IDENT then OP_COLON then OP_EQUAL
-    //   IDENT                     → pun (payload=0)
+    //Struct literal: type { field_inits... }
+    //Each field is one of:
+    //  IDENT  '='  expr          → assign (payload=1)
+    //  IDENT  ':=' expr          → copy-init (payload=2) -- written as IDENT then OP_COLON then OP_EQUAL
+    //  IDENT                     → pun (payload=0)
     [[nodiscard]] inline u32 inStructLit(Parser& p, u32 typeExpr, int rbp, ParseMode /*mode*/) noexcept {
         if (LBP_POSTFIX <= rbp) return typeExpr;
         const u32 opIdx = currentTokenIndex(p);
-        advance(p); // {
+        advance(p); //{
         vector<u32> fields;
         fields.push_back(typeExpr);
         while (peekType(p) != TokenType::CH_RIGHT_BRACE && !atEnd(p)) {
@@ -478,7 +482,7 @@ namespace AOO::Parser {
                 break;
             }
             advance(p);
-            u64 initKind = 0; // pun
+            u64 initKind = 0; //pun
             u32 valueIdx = 0;
             u32 childCount = 0;
             if (peekType(p) == TokenType::OP_EQUAL) {
@@ -487,10 +491,10 @@ namespace AOO::Parser {
                 valueIdx = parseExpr(p, 0, ParseMode::Value);
                 childCount = 1;
             } else if (peekType(p) == TokenType::OP_COLON) {
-                // Could be `:=` (copy-init). Lexer never emits a fused `:=`, so check OP_EQUAL after.
+                //Could be `:=` (copy-init). Lexer never emits a fused `:=`, so check OP_EQUAL after.
                 advance(p);
                 if (!expect(p, TokenType::OP_EQUAL, ErrorKind::UnexpectedToken, "expected '=' to form ':='")) {
-                    // fall through anyway
+                    //fall through anyway
                 }
                 initKind = 2;
                 valueIdx = parseExpr(p, 0, ParseMode::Value);
@@ -513,9 +517,9 @@ namespace AOO::Parser {
             .firstChild = firstChild, .childCount = static_cast<u32>(fields.size()), .payload = 0});
     }
 
-    // Generic application: build node from already-known type-arg list.
+    //Generic application: build node from already-known type-arg list.
     [[nodiscard]] inline u32 buildGenericApp(Parser& p, u32 base, u32 ltTokenIdx) noexcept {
-        // Cursor must be just past the opening '<'. Parse type-args until matching '>'.
+        //Cursor must be just past the opening '<'. Parse type-args until matching '>'.
         vector<u32> children;
         children.push_back(base);
         if (peekType(p) != TokenType::OP_GREATER) {
@@ -532,48 +536,48 @@ namespace AOO::Parser {
             .firstChild = firstChild, .childCount = static_cast<u32>(children.size()), .payload = 0});
     }
 
-    // -------------------- OP_LESS infix handler --------------------
+    //-------------------- OP_LESS infix handler --------------------
     //
-    // OP_LESS is a multi-purpose token in value-mode:
-    //   <<=  shift-assign (tier 3, right-assoc)
-    //   <<   shift        (tier 12, left-assoc)
-    //   <=   compare      (tier 8, non-chain)
-    //   <    compare or generic-app — speculate first, fall back to compare
+    //OP_LESS is a multi-purpose token in value-mode:
+    //  <<=  shift-assign (tier 3, right-assoc)
+    //  <<   shift        (tier 12, left-assoc)
+    //  <=   compare      (tier 8, non-chain)
+    //  <    compare or generic-app — speculate first, fall back to compare
     //
-    // Cursor is at the first OP_LESS.
+    //Cursor is at the first OP_LESS.
     [[nodiscard]] inline u32 inLess(Parser& p, u32 left, int rbp, ParseMode mode) noexcept {
         const u64 saved = p.cursor;
         if (mode == ParseMode::Type) {
-            // In type mode, '<' opens a generic argument list. The infix should never fire at
-            // value-context rbp since type-mode parseExpr doesn't recurse into `<`-as-compare.
+            //In type mode, '<' opens a generic argument list. The infix should never fire at
+            //value-context rbp since type-mode parseExpr doesn't recurse into `<`-as-compare.
             if (LBP_POSTFIX <= rbp) return left;
             const u32 ltIdx = currentTokenIndex(p);
             advance(p);
             return buildGenericApp(p, left, ltIdx);
         }
 
-        // Try `<<` / `<<=`
+        //Try `<<` / `<<=`
         const u32 firstIdx = currentTokenIndex(p);
-        advance(p); // first '<'
+        advance(p); //first '<'
         if (peekType(p) == TokenType::OP_LESS) {
-            advance(p); // second '<'
+            advance(p); //second '<'
             if (peekType(p) == TokenType::OP_EQUAL) {
                 if (LBP_ASSIGN <= rbp) { p.cursor = saved; return left; }
-                advance(p); // '='
+                advance(p); //'='
                 const u32 right = parseExpr(p, LBP_ASSIGN - 1, mode);
                 return makeBinaryOp(p, left, right, firstIdx, TokenType::OP_DOUBLE_LESS_EQUAL);
             }
             if (LBP_SHIFT <= rbp) { p.cursor = saved; return left; }
             const u32 right = parseExpr(p, LBP_SHIFT, mode);
-            // Synthesize fused token type for downstream consumers.
+            //Synthesize fused token type for downstream consumers.
             return makeBinaryOp(p, left, right, firstIdx, TokenType::OP_LESS /* keep as raw '<' for shift left we use a sentinel */);
-            // NOTE: lexer doesn't define a OP_DOUBLE_LESS token; we encode shift-left by storing
-            // the first '<' index plus payload OP_LESS. Downstream readers must look at the next
-            // token to distinguish shift from comparison, OR can use the BinaryOp's tokenIndex
-            // span (covers both '<' tokens).
+            //NOTE: lexer doesn't define a OP_DOUBLE_LESS token; we encode shift-left by storing
+            //the first '<' index plus payload OP_LESS. Downstream readers must look at the next
+            //token to distinguish shift from comparison, OR can use the BinaryOp's tokenIndex
+            //span (covers both '<' tokens).
         }
         if (peekType(p) == TokenType::OP_EQUAL) {
-            // '<='
+            //'<='
             if (LBP_COMPARE <= rbp) { p.cursor = saved; return left; }
             advance(p);
             const u32 right = parseExpr(p, LBP_COMPARE, mode);
@@ -581,26 +585,26 @@ namespace AOO::Parser {
             if (isComparison(peekType(p))) recordError(p, ErrorKind::ComparisonChained);
             return node;
         }
-        // Plain '<' — speculate as generic-app first.
+        //Plain '<' — speculate as generic-app first.
         p.cursor = saved;
         const u64 specSaved = p.cursor;
         if (tryParseGenericArgs(p)) {
-            // success: cursor is now past the closing '>'. Restore to '<' and let the real parser walk.
+            //success: cursor is now past the closing '>'. Restore to '<' and let the real parser walk.
             p.cursor = specSaved;
             const u32 ltIdx = currentTokenIndex(p);
-            advance(p); // consume '<'
+            advance(p); //consume '<'
             return buildGenericApp(p, left, ltIdx);
         }
-        // Comparison.
+        //Comparison.
         if (LBP_COMPARE <= rbp) { p.cursor = saved; return left; }
-        advance(p); // consume '<'
+        advance(p); //consume '<'
         const u32 right = parseExpr(p, LBP_COMPARE, mode);
         const u32 node = makeBinaryOp(p, left, right, firstIdx, TokenType::OP_LESS);
         if (isComparison(peekType(p))) recordError(p, ErrorKind::ComparisonChained);
         return node;
     }
 
-    // OP_GREATER: comparison or shift. Generic close is handled by buildGenericApp.
+    //OP_GREATER: comparison or shift. Generic close is handled by buildGenericApp.
     [[nodiscard]] inline u32 inGreater(Parser& p, u32 left, int rbp, ParseMode mode) noexcept {
         const u64 saved = p.cursor;
         const u32 firstIdx = currentTokenIndex(p);
@@ -632,7 +636,7 @@ namespace AOO::Parser {
         return node;
     }
 
-    // -------------------- rule table --------------------
+    //-------------------- rule table --------------------
 
     using PrefixFn = u32(*)(Parser&, ParseMode) noexcept;
     using InfixFn  = u32(*)(Parser&, u32 left, int rbp, ParseMode) noexcept;
@@ -643,10 +647,10 @@ namespace AOO::Parser {
         int      lbp;
     };
 
-    // Total token-kind count includes MISC_ERROR as the last variant.
+    //Total token-kind count includes MISC_ERROR as the last variant.
     constexpr size_t TOKEN_KIND_COUNT = static_cast<size_t>(TokenType::MISC_ERROR) + 1;
 
-    // Construct the value-mode rule table.
+    //Construct the value-mode rule table.
     [[nodiscard]] inline array<ParseRule, TOKEN_KIND_COUNT> buildValueRules() noexcept {
         array<ParseRule, TOKEN_KIND_COUNT> r{};
         for (auto& slot : r) slot = ParseRule{nullptr, nullptr, LBP_NONE};
@@ -656,7 +660,7 @@ namespace AOO::Parser {
 
         using enum TokenType;
 
-        // Prefix: identifiers and literals
+        //Prefix: identifiers and literals
         setPref(LT_IDENTIFIER, prefIdentifier);
         setPref(LT_STRING, prefStringLiteral);
         setPref(LT_CHAR, prefCharLiteral);
@@ -679,44 +683,44 @@ namespace AOO::Parser {
         setPref(KW_DUP,  prefDup);
         setPref(CH_LEFT_PAREN, prefParen);
 
-        // Prefix unary
+        //Prefix unary
         setPref(OP_BANG,        prefUnary);
-        setPref(OP_DOUBLE_BANG, prefUnary); // diagnoses
+        setPref(OP_DOUBLE_BANG, prefUnary); //diagnoses
         setPref(OP_TILDE,       prefUnary);
         setPref(OP_DASH,        prefUnary);
         setPref(OP_PLUS,        prefUnary);
         setPref(OP_STAR,        prefUnary);
         setPref(OP_AMPERSAND,   prefUnary);
-        setPref(OP_DOUBLE_PLUS, prefUnary); // diagnoses
-        setPref(OP_DOUBLE_DASH, prefUnary); // diagnoses
+        setPref(OP_DOUBLE_PLUS, prefUnary); //diagnoses
+        setPref(OP_DOUBLE_DASH, prefUnary); //diagnoses
 
-        // Infix arithmetic
+        //Infix arithmetic
         setIn(OP_PLUS,    inAdd, LBP_ADD);
         setIn(OP_DASH,    inAdd, LBP_ADD);
         setIn(OP_STAR,    inMul, LBP_MUL);
         setIn(OP_SLASH,   inMul, LBP_MUL);
         setIn(OP_PERCENT, inMul, LBP_MUL);
 
-        // Logical
+        //Logical
         setIn(OP_DOUBLE_AMPERSAND, inAnd, LBP_AND);
         setIn(OP_DOUBLE_BAR,       inOr,  LBP_OR);
 
-        // Bitwise
+        //Bitwise
         setIn(OP_AMPERSAND, inBitAnd, LBP_BIT_AND);
         setIn(OP_BAR,       inBitOr,  LBP_BIT_OR);
         setIn(OP_CARET,     inBitXor, LBP_BIT_XOR);
 
-        // Comparison
+        //Comparison
         setIn(OP_DOUBLE_EQUAL, inEqNeq, LBP_COMPARE);
         setIn(OP_BANG_EQUAL,   inEqNeq, LBP_COMPARE);
         setIn(OP_LESS,         inLess,    LBP_OP_LESS);
         setIn(OP_GREATER,      inGreater, LBP_OP_GREATER);
-        // The lexer doesn't currently emit OP_LESS_EQUAL etc. directly, but we register
-        // them in case future lex passes fuse them.
+        //The lexer doesn't currently emit OP_LESS_EQUAL etc. directly, but we register
+        //them in case future lex passes fuse them.
         setIn(OP_LESS_EQUAL,    inEqNeq, LBP_COMPARE);
         setIn(OP_GREATER_EQUAL, inEqNeq, LBP_COMPARE);
 
-        // Assignment family (all right-assoc, tier 3)
+        //Assignment family (all right-assoc, tier 3)
         setIn(OP_EQUAL,            inAssign, LBP_ASSIGN);
         setIn(OP_PLUS_EQUAL,       inAssign, LBP_ASSIGN);
         setIn(OP_DASH_EQUAL,       inAssign, LBP_ASSIGN);
@@ -727,29 +731,29 @@ namespace AOO::Parser {
         setIn(OP_BAR_EQUAL,        inAssign, LBP_ASSIGN);
         setIn(OP_CARET_EQUAL,      inAssign, LBP_ASSIGN);
 
-        // Range
+        //Range
         setIn(OP_DOUBLE_PERIOD, inRange, LBP_RANGE);
         setIn(OP_TRIPLE_PERIOD, inRange, LBP_RANGE);
 
-        // Ternary
+        //Ternary
         setIn(OP_QUESTION_COLON, inTernaryQ,  LBP_TERNARY);
         setIn(OP_DOUBLE_QUESTION, inTernaryQQ, LBP_TERNARY);
 
-        // `as` cast
+        //`as` cast
         setIn(KW_AS, inAs, LBP_AS);
 
-        // Postfix (tier 17)
+        //Postfix (tier 17)
         setIn(OP_BANG,        inPostfixUnary, LBP_POSTFIX);
         setIn(OP_DOUBLE_BANG, inPostfixUnary, LBP_POSTFIX);
         setIn(OP_DOUBLE_PLUS, inPostfixUnary, LBP_POSTFIX);
         setIn(OP_DOUBLE_DASH, inPostfixUnary, LBP_POSTFIX);
 
-        // Member access
+        //Member access
         setIn(OP_PERIOD,       inMemberAccess, LBP_POSTFIX);
         setIn(OP_DASH_GREATER, inMemberAccess, LBP_POSTFIX);
         setIn(OP_COLON,        inMemberAccess, LBP_POSTFIX);
 
-        // Call / index / struct literal
+        //Call / index / struct literal
         setIn(CH_LEFT_PAREN,   inCall,      LBP_POSTFIX);
         setIn(CH_LEFT_BRACKET, inIndex,     LBP_POSTFIX);
         setIn(CH_LEFT_BRACE,   inStructLit, LBP_POSTFIX);
@@ -757,8 +761,8 @@ namespace AOO::Parser {
         return r;
     }
 
-    // Type-mode rule table: prefix `~`, postfix `!` `!!` `*` `&`, generic-app at `<`.
-    // No comparison, no arithmetic.
+    //Type-mode rule table: prefix `~`, postfix `!` `!!` `*` `&`, generic-app at `<`.
+    //No comparison, no arithmetic.
     [[nodiscard]] inline array<ParseRule, TOKEN_KIND_COUNT> buildTypeRules() noexcept {
         array<ParseRule, TOKEN_KIND_COUNT> r{};
         for (auto& slot : r) slot = ParseRule{nullptr, nullptr, LBP_NONE};
@@ -790,7 +794,7 @@ namespace AOO::Parser {
         return mode == ParseMode::Type ? typeRules[(size_t)t] : valueRules[(size_t)t];
     }
 
-    // -------------------- main Pratt loop --------------------
+    //-------------------- main Pratt loop --------------------
 
     [[nodiscard]] inline u32 parseExpr(Parser& p, int rbp, ParseMode mode) noexcept {
         skipTrivia(p);

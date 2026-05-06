@@ -166,6 +166,8 @@ namespace AOO::Lexer {
 
         //Misc
         MISC_WHITESPACE,
+        MISC_LINE_COMMENT,
+        MISC_BLOCK_COMMENT,
         MISC_EOF,
         MISC_ERROR
     };
@@ -302,6 +304,8 @@ namespace AOO::Lexer {
             case LT_LABEL: return "LT_LABEL";
             //Misc
             case MISC_WHITESPACE: return "MISC_WHITESPACE";
+            case MISC_LINE_COMMENT: return "MISC_LINE_COMMENT";
+            case MISC_BLOCK_COMMENT: return "MISC_BLOCK_COMMENT";
             case MISC_EOF: return "MISC_EOF";
             case MISC_ERROR: return "MISC_ERROR";
         }
