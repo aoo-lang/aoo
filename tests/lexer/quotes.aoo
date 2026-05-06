@@ -21,4 +21,6 @@ r##"""#
 "##
 r####"##""#"###"#"####
 
-f"非ASCII字符"c"非ASCII字符" r"非ASCII字符" "非ASCII字符" "\u4e2d\u6587" "\u0001f600"
+f"非ASCII字符"c"非ASCII字符" r#"非"ASCII"
+
+#字符"# "非ASCII字符" "\u4e2d\u6587" "\u0001f600"
