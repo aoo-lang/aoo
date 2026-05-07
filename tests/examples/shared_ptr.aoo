@@ -1,11 +1,22 @@
 module std;
 
+/**Aka CB. This is a documentation comment.
+ */
 type ControlBlock<type T> {
 public:
     T! value;
     u64 strongCount;
 }
 
+//This is a documentation comment.
+//Markdown *test* **test** `test` /* */*/
+//# Heading 1
+//## Heading 2
+//### Heading 3
+//@test
+//```
+//auto a = shared_ptr::adopt(5);
+//```
 export type shared_ptr<type T> {
     dup = void;
 
