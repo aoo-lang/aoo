@@ -1,0 +1,11 @@
+enum V {
+    A
+}
+
+V v = V:A;
+
+u64 res = match v {};
+
+match v {};
+
+match v {}  //Error

@@ -1,0 +1,22 @@
+//CAUTION: Not every compiler supports testing this file. If your compiler throws an error, please check if it's a false positive and comment out some test cases if necessary.
+
+#define A B
+
+type T {
+    u8 a;
+    #builtin:int b;
+}
+
+//For normal development, use the reflection API instead:
+//```aoo
+//u64 a = T:type:size;
+//```
+u64 a = #builtin:sizeof(T); //8 if you are on x64 platform and your compiler handles padding conventionally. AOO specs doesn't specify any padding, so it may be 5 if your compiler doesn't add any padding at all.
+
+#if 8 == 8
+    u8 c = 1;
+#elif 8 == 16
+    u8 c = 2;
+#else
+    u8 c = 3;
+#endif

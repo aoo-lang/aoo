@@ -1,0 +1,30 @@
+u16 var1 = 10;
+
+u32 var2 = var1; //Implicit widening
+
+u8 var3 = var1; //Error: "Implicit narrowing is not allowed, use `as`."
+
+u8 var4 = var1 as u8;
+
+auto var5 = var1 as u8;
+
+auto var6 = var1 as f64;
+
+auto ptr1 = &var1; //u16* ptr1
+
+auto ptr2 = ptr1 as u8*; //Error: "Cannot cast pointer of type `u16*` to `u8*`. Cast to `void*` first if you really want to."
+
+auto ptr3 = ptr1 as void*?; //void* ptr3; u16* -> void*?
+
+auto ptr4 = ptr3 as u8*; //u8* ptr4; void*? -> u8*
+
+auto ptr5 = ptr1 as void*? as u8*; //u8* ptr5; u16* -> void*? -> u8*
+
+//These two lines below will have one of them correct and the other one will be an error "Cannot cast pointer types to numeric types of `u..`. Pointers have size of (32|64) bits on the given architecture. Use `u..`.", depending on the architecture of the machine running the test.
+
+auto u64ptr1 = ptr1 as u64;
+auto u32ptr1 = ptr1 as u32;
+
+auto u16ptr1 = ptr1 as u16; //This will certainly error as written above because no one runs tests on 16-bit machines.
+
+auto i64ptr1 = ptr1 as i64; //Error: "Cannot cast pointer types to signed numbers. Use `u..`."

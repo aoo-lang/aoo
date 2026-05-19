@@ -1,0 +1,11 @@
+import std:io:print;
+
+enum Grade { A, B, C, D, E, F }
+
+Grade grade = Grade:A;
+
+match grade {
+    A | B { print("good"); }
+    C | D | E { print("ok"); }
+    else { print("bad"); }
+};

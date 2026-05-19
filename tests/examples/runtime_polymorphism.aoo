@@ -1,0 +1,93 @@
+//This example demonstrates runtime polymorphism using traits in AOO. We define two traits, `Greets` and `Ages`, and implement them for different data types representing different people. The `Person` enum can hold any of these data types and allows us to call the trait methods on them without knowing their specific types at compile time.
+
+import std:{string, print};
+
+type AliceData {
+    u8 age;
+    string hobby;
+
+    trait Greets {
+        public void greet(self) {
+            print("Alice is {} years old and enjoys {}", self.age, self.hobby);
+        }
+    }
+
+    trait Ages {
+        public void age(self!) => self.age++;
+    }
+}
+
+type BobData {
+    u8 age;
+    string city;
+}
+
+trait Greets in BobData {
+    public void greet(self) {
+        print("Bob is {} years old and lives in {}", self.age, self.city);
+    }
+}
+
+trait Ages in BobData {
+    public void age(self!) => self.age++;
+}
+
+type CharlieData {
+    u8 age;
+    string profession;
+
+    trait Greets {
+        public void greet(self) {
+            print("Charlie is {} years old and works as a {}", self.age, self.profession);
+        }
+    }
+
+    trait Ages {
+        public void age(self!) {
+            self.age++;
+        }
+    }
+}
+
+enum Person as u8 for Greets && Ages {
+    Alice(AliceData) = 66,
+    Bob(BobData), // defaults to 67
+    Charlie(CharlieData),
+    Dave, // 69
+    None = 0
+
+    trait Greets {
+        public void greet(self) => match self {
+            Alice(auto data) => data.greet(); //This also works, but this may make it ambiguous if there are multiple traits with the same method name. We need to suggest developers to always use the fully qualified syntax to avoid footguns. We compiler has no way to know if the developers' intention is to call the method from the current trait or from another trait that has the same method name, but consider raising a warning.
+            Bob(auto data) => Greets:greet(data);
+            Charlie(auto data) => Greets:greet(data);
+            Dave => print("Dave says hi!");
+            None => print("There's no one to greet!");
+        };
+    }
+}
+
+trait Ages in Person {
+    public void age(self!) => match self {
+        Alice(auto data) => Ages:age(data);
+        Bob(auto data) => Ages:age(data);
+        Charlie(auto data) => Ages:age(data);
+        else => print("This person cannot age.");
+    };
+}
+
+void main() {
+    Person a = Person:Alice(AliceData { hobby = string:new("painting"), age = 30 });
+
+    a.greet(); // Output: Alice is 30 years old and enjoys painting
+    a.age();
+    a.greet(); // Output: Alice is 31 years old and enjoys painting
+
+    match a {
+        Alice(auto data) => print("Alice is {} years old and enjoys {}", data.age, data.hobby);
+        Bob(auto data) {
+            print("Bob is {} years old and lives in {}", data.age, data.city);
+        }
+        Charlie(auto data) => print("Charlie is {} years old and works as a {}", data.age, data.profession);
+    };
+}

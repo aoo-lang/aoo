@@ -1,0 +1,17 @@
+import module std;
+
+type Person { u8 age; std:string name; }
+
+type Person { u8 getAge(self) => self.age; }
+
+type Person {
+    trait A {
+        void a() {}
+    }
+}
+
+type Person {
+    op std:string(self) => self.name;
+}
+
+type Person { f64 weight; } //Error: "Fields of type `Person` is already defined at [f-0015.aoo:3:1](./f-0015.aoo:3:1)."

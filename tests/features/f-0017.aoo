@@ -1,0 +1,3 @@
+u8 a = 1;
+type(a) b = 2;          // b : u8
+type(a + a) c = 3;      // c : u8

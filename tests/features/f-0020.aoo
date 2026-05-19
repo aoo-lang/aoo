@@ -1,0 +1,39 @@
+enum E as u64 {
+    A = 0xFFFF,
+    B = 0x10000,
+    C = 0
+}
+
+enum AutoIncrement {
+    A = 10,
+    B, //11
+    C = 0,
+    D, //1
+    E  //2
+}
+
+enum Clash1 {
+    A = 2,
+    B,
+    C = 3 //Error: "The value of `C` would be `3` which is the same as the value of `B`."
+}
+
+enum Clash2 {
+    A = 2, B = 2 //Error: "The value of `B` would be `2` which is the same as the value of `A`."
+}
+
+enum Clash3 {
+    A = 3,
+    B = 2,
+    C //Error: "The value of `C` would be `3` which is the same as the value of `A`."
+}
+
+enum OutOfRange1 as u8 {
+    A = 255,
+    B //Error: "The value of `B` would be `256` which is greater than the maximum value of `u8`, which is `255`."
+}
+
+enum OutOfRange2 {
+    A = 0xFFFFFFFFFFFFFFFF,
+    B //Error: "The value of `B` would be `0x10000000000000000` which is greater than the maximum value of `u64`, which is `0xFFFFFFFFFFFFFFFF`."
+}

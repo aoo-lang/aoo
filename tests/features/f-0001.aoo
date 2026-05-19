@@ -1,0 +1,30 @@
+//module(std:mem)
+std:mem
+
+//module(std:fmt)
+std:fmt
+
+//void<type... Ts>(Ts... args)
+std:io:print
+
+/* Reflection API tests are delayed. */
+
+
+//typeReflection(void<type... Ts>(Ts... args))
+std:io:print:type
+//Category:Function
+std:io:print:type:category
+//[u8], "print"
+std:io:print:type:name
+//arguments(void<type... Ts>(Ts... args)) -> type... Ts
+std:io:print<>:type:args
+
+
+//traitReflection(<trait Drop>)
+//Drop:trait
+//[u8], "Drop"
+//Drop:trait:name
+//methods(<trait Drop>)
+//Drop:trait:methods
+//[u8], "drop"
+//Drop:trait:methods[0].name

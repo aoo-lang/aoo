@@ -1,0 +1,6 @@
+'outer: for 0..10 {
+    for 0..10 {
+        break 'outer;
+        break outer; //Error: "`outer` is not a label. Do you mean `'outer`?"
+    }
+}

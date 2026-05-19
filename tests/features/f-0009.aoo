@@ -1,0 +1,5 @@
+enum Unsigned {
+    U8(u8), U16(u16), Illegal
+    //equivalent to:
+    //U8(u8), U16(u16), Illegal(void)
+}

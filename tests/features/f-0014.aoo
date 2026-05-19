@@ -1,0 +1,9 @@
+import path:{item1 as alias1, item2, module1:{item3 as alias3, item4, module2:*, module3:**}};
+
+import path:{error}; //Error: "Only one item found in `{error}`. Remove the curly braces."
+
+import path:{path1, path2}:{item1, item2}; //Error: "Curly braces are not allowed in the path part of an import statement."
+
+import path:{item1, *}; //Error: "Wildcard imports cannot be combined with named imports in the same import statement."
+
+import path:{item1, **}; //Error: "Recursive imports cannot be combined with named imports in the same import statement."

@@ -30,7 +30,7 @@ export type shared_ptr<type T> {
         if (!self.cb) return;
         self.cb->strongCount--;
         if self.cb->strongCount == 0 {
-            if (Drop<T>) self.cb->value.drop();
+            if (Drop in T) self.cb->value.drop();
             mem:free(self.cb);
             self.cb = 0;
         }
@@ -51,12 +51,12 @@ export type shared_ptr<type T> {
         void drop(~self!) => self.release();
     }
 
-    trait Clone if Clone<T> {
+    trait Clone if Clone in T {
         shared_ptr<T> clone(self) => self.cb ?: adopt(self.cb->value.clone()) :: shared_ptr<T>{};
     }
 }
 
 //The trait is equivalent to this:
-//trait Clone in shared_ptr<T> if Clone<T> {
+//trait Clone in shared_ptr<T> if Clone in T {
 //    shared_ptr<T> clone(self) => self.cb ?: adopt(self.cb->value.clone()) :: shared_ptr<T>{};
 //}

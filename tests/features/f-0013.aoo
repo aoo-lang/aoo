@@ -1,0 +1,7 @@
+export module aa; //Error: "Modules cannot be explicitly written to export. They are always exposed. Use `import module ...` to import them."
+
+import std:io:somethingprivate; //Error: "`somethingPrivate` is not an exported item in `std:io`."
+
+import std:io; //Error: "`io` is a module. Use `import module std:io`."
+
+import module std:io;
