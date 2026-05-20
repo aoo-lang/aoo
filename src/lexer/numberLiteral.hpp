@@ -3,6 +3,7 @@
 
 #include "../currentFile.hpp"
 #include "tokens.hpp"
+#include "utils.hpp"
 
 namespace AOO::Lexer {
     typedef uint8_t u8;
@@ -163,7 +164,7 @@ namespace AOO::Lexer {
                             else { //Literal 0 at the end of the file.
                                 lastChar = '0';
                                 cursor++;
-                                return {.type = LT_DECIMAL_INT, .payload = span(fileContent.data() + origin, 1)};
+                                return {.type = LT_DECIMAL_INT, .payload = makePayload(origin, cursor)};
                             }
                             break;
                         case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9':
@@ -419,7 +420,7 @@ namespace AOO::Lexer {
             //lastChar = fileContent[cursor];
         }
 
-        const auto literalRange = span(fileContent.data() + origin, cursor - origin);
+        const auto literalRange = makePayload(origin, cursor);
 
         switch (state) {
             case Finished: return convertStateToToken(isFloatingPoint, base, typeSize, literalRange);
@@ -429,7 +430,7 @@ namespace AOO::Lexer {
 
             case DetectBase: //`DetectBase` is a transient state, so the only way to end the file in this state is the cursor hit the end without even eating the first character. So it's a straight up EOF. But what I really want to know is, how did we get here?
                 cerr << "How did we get here?\n";
-                return {.type = MISC_EOF};
+                return makeToken(MISC_EOF, fileContent.size(), fileContent.size());
 
             case IntegerLoop: //The only way to end the file in this state is the cursor hit the end right after eating a valid digit, so it's definitely a valid integer literal.
                 return convertStateToToken(isFloatingPoint, base, typeSize, literalRange);

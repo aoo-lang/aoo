@@ -17,6 +17,7 @@ namespace AOO::Lexer {
     using enum TokenType;
 
     [[nodiscard]] inline Token getOctalEscapeSequence(u64& cursor, u8 secondChar) noexcept {
+        const u64 origin = cursor;
         u8 secondOctalDigit, thirdOctalDigit;
 
         //To the second octal digit's place.
@@ -27,12 +28,12 @@ namespace AOO::Lexer {
         //Stop with one digit.
         else if (fileContent[cursor] == '\'') {
             cursor++;
-            return {.type = LT_CHAR, .charPayload = static_cast<u8>(secondChar - '0')};
+            return {.type = LT_CHAR, .payload = makePayload(origin, cursor), .charPayload = static_cast<u8>(secondChar - '0')};
         }
         //Invalid.
         else {
             cursor++;
-            return greedyUntilAndErrorOut(cursor, '\'', cursor - 4);
+            return greedyUntilAndErrorOut(cursor, '\'', origin);
         }
 
         //To the third octal digit's place.
@@ -44,25 +45,25 @@ namespace AOO::Lexer {
             if (fileContent[cursor + 1] == '\'') {
                 cursor += 2;
                 const u16 value = (secondChar - '0') * 64 + (secondOctalDigit - '0') * 8 + (thirdOctalDigit - '0');
-                if (value > 255) return {.type = MISC_ERROR, .payload = span(fileContent.data() + cursor - 6, 6)};
-                return {.type = LT_CHAR, .charPayload = static_cast<u8>(value)};
+                if (value > 255) return makeToken(MISC_ERROR, origin, cursor);
+                return {.type = LT_CHAR, .payload = makePayload(origin, cursor), .charPayload = static_cast<u8>(value)};
             }
             else {
                 //More than three octal digits is not allowed, we need to greedy until ' and error out.
                 cursor += 2;
-                return greedyUntilAndErrorOut(cursor, '\'', cursor - 6);
+                return greedyUntilAndErrorOut(cursor, '\'', origin);
             }
         }
         //Stop with two digits.
         else if (fileContent[cursor] == '\'') {
             cursor++;
             //Two digits never overflow.
-            return {.type = LT_CHAR, .charPayload = static_cast<u8>((secondChar - '0') * 8 + (secondOctalDigit - '0'))};
+            return {.type = LT_CHAR, .payload = makePayload(origin, cursor), .charPayload = static_cast<u8>((secondChar - '0') * 8 + (secondOctalDigit - '0'))};
         }
         //Invalid. Greedy until ' and error out.
         else {
             cursor++;
-            return greedyUntilAndErrorOut(cursor, '\'', cursor - 5);
+            return greedyUntilAndErrorOut(cursor, '\'', origin);
         }
     }
 
@@ -84,17 +85,17 @@ namespace AOO::Lexer {
                 if (fileContent[cursor] == '\'') {
                     cursor++;
                     if (value > 255) {
-                        return {.type = MISC_ERROR, .payload = span(fileContent.data() + origin, cursor - origin)};
+                        return makeToken(MISC_ERROR, origin, cursor);
                     }
-                    else if (cursor == origin + 4) return {.type = MISC_ERROR, .payload = span(fileContent.data() + origin, 4)};
-                    else return {.type = LT_CHAR, .charPayload = static_cast<u8>(value)};
+                    else if (cursor == origin + 4) return makeToken(MISC_ERROR, origin, cursor);
+                    else return {.type = LT_CHAR, .payload = makePayload(origin, cursor), .charPayload = static_cast<u8>(value)};
                 }
                 else return greedyUntilAndErrorOut(cursor, '\'', origin);
             }
             else /*if (outOfRange)*/ return greedyUntilAndErrorOut(cursor, '\'', origin);
         }
         //File ended.
-        else return {.type = MISC_ERROR, .payload = span(fileContent.data() + origin, cursor - origin)};
+        else return makeToken(MISC_ERROR, origin, cursor);
     }
 
     //Recognizes '\u{HHHH}' (exactly 4 hex digits) and '\u{HHHHHHHH}' (exactly 8 hex digits).
@@ -139,24 +140,26 @@ namespace AOO::Lexer {
         cursor++;
 
         //Char literals hold a single byte; values > 255 are out of range.
-        if (value > 255) return {.type = MISC_ERROR, .payload = span(fileContent.data() + origin, cursor - origin)};
-        return {.type = LT_CHAR, .charPayload = static_cast<u8>(value)};
+        if (value > 255) return makeToken(MISC_ERROR, origin, cursor);
+        return {.type = LT_CHAR, .payload = makePayload(origin, cursor), .charPayload = static_cast<u8>(value)};
     }
 
     [[nodiscard]] inline Token getValidEscapedChar(u64& cursor, u8 escapedChar) noexcept {
+        const u64 origin = cursor;
         cursor += 3;
         if (fileContent[cursor] == '\'') {
             cursor++;
-            return {.type = LT_CHAR, .charPayload = escapedChar};
+            return {.type = LT_CHAR, .payload = makePayload(origin, cursor), .charPayload = escapedChar};
         }
         else {
             cursor++;
-            return greedyUntilAndErrorOut(cursor, '\'', cursor - 4);
+            return greedyUntilAndErrorOut(cursor, '\'', origin);
         }
     }
 
     //You may get a LT_LABEL from this.
     [[nodiscard]] inline Token getCharLiteralOrLabel(u64& cursor) noexcept {
+        const u64 origin = cursor;
         if (cursor + 2 < fileContent.size()) {
             const u8 firstChar = fileContent[cursor + 1];
             if (firstChar == '\\' && cursor + 3 < fileContent.size()) {
@@ -182,24 +185,23 @@ namespace AOO::Lexer {
                     //Greedy until ' and error out.
                     default: {
                         cursor += 3;
-                        return greedyUntilAndErrorOut(cursor, '\'', cursor - 3);
+                        return greedyUntilAndErrorOut(cursor, '\'', origin);
                     }
                 }
             }
             //Not enough chars to be escaped. Just consume all characters till the end.
             else if (firstChar == '\\') {
                 cursor += 3;
-                return {.type = MISC_ERROR, .payload = span(fileContent.data() + cursor - 3, 3)};
+                return makeToken(MISC_ERROR, origin, cursor);
             }
             //Empty char literal is invalid.
             else if (firstChar == '\'') {
                 cursor += 2;
-                return {.type = MISC_ERROR, .payload = span(fileContent.data() + cursor - 2, 2)};
+                return makeToken(MISC_ERROR, origin, cursor);
             }
             else { //Normal char literal or label
                 //Not closed. Check for : for labels, otherwise greedy until ' and error out.
                 if (fileContent[cursor + 2] != '\'') {
-                    const u64 origin = cursor;
                     cursor++;
                     bool possibleLabel = isValidIdentifierStart(fileContent[cursor]);
                     cursor++;
@@ -207,22 +209,22 @@ namespace AOO::Lexer {
                         if (possibleLabel) {
                             if (fileContent[cursor] == ':') {
                                 cursor++;
-                                return {.type = LT_LABEL, .payload = span(fileContent.data() + origin + 1, cursor - origin - 2)};
+                                return makeToken(LT_LABEL, origin, cursor);
                             }
                             else if (!isValidIdentifierPart(fileContent[cursor])) possibleLabel = false;
                         }
                         if (fileContent[cursor] == '\'') {
                             cursor++;
-                            return {.type = MISC_ERROR, .payload = span(fileContent.data() + origin, cursor - origin)};
+                            return makeToken(MISC_ERROR, origin, cursor);
                         }
                         cursor++;
                     }
                     //File ended.
-                    return {.type = MISC_ERROR, .payload = span(fileContent.data() + origin, cursor - origin)};
+                    return makeToken(MISC_ERROR, origin, cursor);
                 }
                 else { //Closed -> char literal.
                     cursor += 3;
-                    return {.type = LT_CHAR, .charPayload = firstChar};
+                    return {.type = LT_CHAR, .payload = makePayload(origin, cursor), .charPayload = firstChar};
                 }
             }
         }
@@ -230,12 +232,12 @@ namespace AOO::Lexer {
             if (cursor + 1 < fileContent.size()) {
                 //Consume the last 2 characters.
                 cursor += 2;
-                return {.type = MISC_ERROR, .payload = span(fileContent.data() + cursor - 2, 2)};
+                return makeToken(MISC_ERROR, origin, cursor);
             }
             else {
                 //Consume the last '.
                 cursor++;
-                return {.type = MISC_ERROR, .payload = span(fileContent.data() + cursor - 1, 1)};
+                return makeToken(MISC_ERROR, origin, cursor);
             }
         }
     }

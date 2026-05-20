@@ -1,0 +1,41 @@
+u8 a = 10;
+u8 b = a;
+u8 c = a; //Error: "Type `void` cannot be assigned to type `u8`. This is probably because you've assigned the variable before, which making it a void type and no longer able to be used. Use `dup a` to duplicate the variable instead of assigning from it directly."
+
+u8 d = dup b, e = dup d, f = dup e, g := f;
+
+u8 h := dup g; //Warning: "`:=` already dupes the RHS. There is no need to use `dup`."
+
+type A {
+    public u8 a;
+}
+
+A a1 {
+    a = 10
+};
+
+A a2 = a1;
+
+A a3 = a1; //Error: "Type `void` cannot be assigned to type `A`. This is probably because you've assigned the variable before, which making it a void type and no longer able to be used. Use `dup a` to duplicate the variable instead of assigning from it directly."
+
+A a4 = dup a2, a5 = dup a4;
+
+A a6 := a5;
+
+type B {
+    dup = void;
+    public u8 b;
+}
+
+B b1 { b := g };
+
+B b2 = dup b1; //Error: "Type `B` has duping disabled."
+B b3 := dup b1; //Error: "Type `B` has duping disabled."
+
+type C {
+    dup = void;
+    public u8 c;
+    dup = void; //Error: "Duplicate `dup` definitions are not allowed."
+}
+
+C c1 { c := b1.b };

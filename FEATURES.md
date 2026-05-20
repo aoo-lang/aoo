@@ -388,3 +388,19 @@ Parsing
 ## Tests
 
 `tests/features/f-0025.aoo`
+
+# F-0026
+
+The `dup` keyword is used to create a bitwise copy of a value. The syntax is `dup expr`, where `expr` is the expression to be duplicated. The result of `dup expr` is a new value that is a bitwise copy of the original value with the same type.
+
+Type authors can disable `dup` for their types by writing `dup = void;` once anywhere in the type body. The compiler should emit an error if `dup` is used on a type that has disabled it.
+
+The operator `:=` is the syntax sugar for `dup`. `:=` can be used in most concrete cases to replace `dup`.
+
+## Phase
+
+Parsing
+
+## Tests
+
+`tests/features/f-0026.aoo`

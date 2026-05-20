@@ -345,22 +345,33 @@ namespace AOO::Lexer {
     struct Token {
         TokenType type;
         StringType strlType;
-        union {
-            span<const u8> payload;
-            u8 charPayload;
-        };
+        span<const u8> payload;
+        u8 charPayload;
     };
 
     inline ostream& operator<<(ostream& os, const Token& token) noexcept {
         using enum TokenType;
         os << "Tk: " << token.type << ", ";
         if (token.type == LT_STRING) os << "StrlType: " << token.strlType << ", ";
-        os << '"';
         switch (token.type) {
-            case LT_CHAR: os << token.charPayload; break;
-            default: os << string(token.payload.begin(), token.payload.end()); break;
+            case MISC_WHITESPACE:
+                os << "<WHITESPACE>";
+                break;
+            case MISC_LINE_COMMENT:
+                os << "<LINE_COMMENT>";
+                break;
+            case MISC_BLOCK_COMMENT:
+                os << "<BLOCK_COMMENT>";
+                break;
+            case MISC_EOF:
+                os << "<EOF>";
+                break;
+            default:
+                os << '"';
+                os << string(token.payload.begin(), token.payload.end());
+                os << '"';
+                break;
         }
-        os << '"';
         return os;
     }
 }
