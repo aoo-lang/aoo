@@ -10,21 +10,47 @@ auto var5 = var1 as u8;
 
 auto var6 = var1 as f64;
 
+u16 var7 = var1 as u16; //This is no-op and should emit warning.
+
 auto ptr1 = &var1; //u16* ptr1
 
-auto ptr2 = ptr1 as u8*; //Error: "Cannot cast pointer of type `u16*` to `u8*`. Cast to `void*` first if you really want to."
-
-auto ptr3 = ptr1 as void*?; //void* ptr3; u16* -> void*?
-
-auto ptr4 = ptr3 as u8*; //u8* ptr4; void*? -> u8*
-
-auto ptr5 = ptr1 as void*? as u8*; //u8* ptr5; u16* -> void*? -> u8*
-
-//These two lines below will have one of them correct and the other one will be an error "Cannot cast pointer types to numeric types of `u..`. Pointers have size of (32|64) bits on the given architecture. Use `u..`.", depending on the architecture of the machine running the test.
-
+//These two lines below will have one of them correct and the other one will be an error "Cannot cast pointer types to numeric types of `u(32|64)`. Pointers have size of (32|64) bits on the given architecture. Use `u(32|64)`.", depending on the architecture of the machine running the test.
 auto u64ptr1 = ptr1 as u64;
 auto u32ptr1 = ptr1 as u32;
 
 auto u16ptr1 = ptr1 as u16; //This will certainly error as written above because no one runs tests on 16-bit machines.
 
-auto i64ptr1 = ptr1 as i64; //Error: "Cannot cast pointer types to signed numbers. Use `u..`."
+auto i64ptr1 = ptr1 as i64; //Error: "Cannot cast pointer types to signed numbers. Use `u(32|64)`."
+
+u64 var8 = 10;
+void*? ptr2 = var8 as void*?;
+auto ptr3 = var8 as void*?;
+void* ptr4 = var8 as void*; //Error: "Cannot cast numeric types to pointer types other than `void*?`."
+u8* ptr5 = var8 as u8*; //Error: "Cannot cast numeric types to pointer types other than `void*?`."
+u16 var9 = 10;
+void*? ptr6 = var9 as void*?; //Error: "Cannot cast `u16` to pointer types. Pointers have size of (32|64) bits on the given architecture."
+i64 var10 = 10;
+void*? ptr7 = var10 as void*?; //Error: "Cannot cast signed integers to pointer types. Use `u(32|64)`."
+
+auto ptr8 = ptr1 as u16*; //No-op, should emit warning.
+
+auto? ptr9 = &var1; //u16*? ptr9
+
+//Type erasure conversions.
+auto ptr10 = ptr1 as void*;
+auto ptr11 = ptr9 as void*?;
+
+auto ptr12 = ptr9 as void*; //Error: "`ptr9` is nullable; `as` doesn't change nullability. Use `ptr9??`."
+
+auto ptr13 = ptr1 as void*?; //Error: "`ptr1` is non-nullable; `as` doesn't change nullability. Use `ptr1?`."
+
+//Mutability conversions.
+u16! var11 = var1 as u16!; //Error: "Use `!` for adding mutability, not `as`."
+u16 var12 = var11 as u16; //Error: "Use implicit conversion or `!!` for removing mutability, not `as`."
+
+//User assertion conversions.
+u16* ptr14 = ptr10 as u16*;
+u16*? ptr15 = ptr10 as u16*?; //Error: "`ptr10` is non-nullable; `as` doesn't change nullability. Use `ptr10?` first."
+
+u16*? ptr16 = ptr10 as u16*?; //Error: "`ptr10` is non-nullable; `as` doesn't change nullability. Use `ptr10?`."
+u16* ptr17 = ptr9 as u16*; //Error: "`ptr9` is nullable; `as` doesn't change nullability. Use `ptr9??`."

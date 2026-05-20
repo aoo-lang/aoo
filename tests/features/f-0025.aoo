@@ -1,0 +1,7 @@
+type A {
+    [u8] a;
+
+    trait Drop {
+        void drop(~self!) => self.a.drop();
+    }
+}

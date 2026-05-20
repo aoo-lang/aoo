@@ -1,0 +1,19 @@
+type A {
+public:
+    private u8 value; //Should be private
+    public u8 value2; //Should be public
+    u8 value3; //Should be public
+private:
+    u8 value4; //Should be private
+    public u8 value5; //Should be public
+}
+
+trait B {
+    private u8 value; //Should be private
+    private void a(); //Should be private
+    void b(); //Should be public
+private:
+    void c(); //Should be private
+    public void d(); //Should be public
+    u8 value2; //Should be private
+}

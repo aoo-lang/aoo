@@ -1,0 +1,15 @@
+type A {}
+
+type B {}
+
+enum E {
+    A(A),
+    B(B),
+    C
+}
+
+enum F {
+    A(A),
+    B(B),
+    C(void) //Error: "`void` cannot be used as payload type for enum variants. If you want a variant with no data, just omit the parentheses."
+}
