@@ -7,7 +7,7 @@ namespace Util {
     using std::span, std::string_view;
 
     template <size_t length>
-    [[nodiscard]] inline bool equals(const span<const u8> a, const char(& b)[length]) noexcept {
+    [[nodiscard]] inline bool equals(const span<const u8> a, const char(&b)[length]) noexcept {
         if (a.size() != length - 1) return false;
         //They are all empty.
         if constexpr (length == 1) return true;

@@ -9,7 +9,7 @@ namespace AOO {
     struct Arguments {
         struct Debug {
             enum struct DumpKind : u8 {
-                None, Lexer, AST, IR, ASM
+                None, Token, CST, AST, IR, ASM
             } dump_kind{DumpKind::None};
             string dump_to;
         } debug;

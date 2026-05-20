@@ -18,6 +18,95 @@ namespace AOO::Lexer {
 
     namespace detail {
         inline u64 cursor{0};
+
+        [[nodiscard]] inline bool startsWith(u8 first, u8 second) noexcept {
+            return cursor + 1 < fileContent.size() && fileContent[cursor] == first && fileContent[cursor + 1] == second;
+        }
+
+        [[nodiscard]] inline bool startsWithBom() noexcept {
+            return cursor == 0
+                && fileContent.size() >= 3
+                && fileContent[0] == 239
+                && fileContent[1] == 187
+                && fileContent[2] == 191;
+        }
+
+        [[nodiscard]] inline bool isHorizontalWhitespace(u8 c) noexcept {
+            return c == ' ' || c == '\t';
+        }
+
+        [[nodiscard]] inline bool startsNewline() noexcept {
+            return cursor < fileContent.size() && (fileContent[cursor] == '\n' || fileContent[cursor] == '\r');
+        }
+
+        inline void consumeNewline() noexcept {
+            if (cursor < fileContent.size() && fileContent[cursor] == '\r' && cursor + 1 < fileContent.size() && fileContent[cursor + 1] == '\n') {
+                cursor += 2;
+            }
+            else if (cursor < fileContent.size()) cursor++;
+        }
+
+        inline void consumeLineComment() noexcept {
+            cursor += 2;
+            while (cursor < fileContent.size() && fileContent[cursor] != '\n' && fileContent[cursor] != '\r') cursor++;
+        }
+
+        [[nodiscard]] inline bool consumeBlockComment() noexcept {
+            bool containsNewline = false;
+            cursor += 2;
+            while (cursor + 1 < fileContent.size() && !(fileContent[cursor] == '*' && fileContent[cursor + 1] == '/')) {
+                if (fileContent[cursor] == '\r') {
+                    containsNewline = true;
+                    if (cursor + 1 < fileContent.size() && fileContent[cursor + 1] == '\n') cursor += 2;
+                    else cursor++;
+                }
+                else {
+                    if (fileContent[cursor] == '\n') containsNewline = true;
+                    cursor++;
+                }
+            }
+            if (cursor + 1 < fileContent.size()) cursor += 2;
+            else cursor = fileContent.size();
+            return containsNewline;
+        }
+
+        [[nodiscard]] inline bool startsTrivia() noexcept {
+            return cursor < fileContent.size()
+                && (isWhitespace(fileContent[cursor]) || startsWith('/', '/') || startsWith('/', '*') || startsWithBom());
+        }
+
+        [[nodiscard]] inline span<const u8> scanLeadingTrivia() noexcept {
+            const u64 origin = cursor;
+            while (startsTrivia()) {
+                if (startsWithBom()) cursor += 3;
+                else if (isWhitespace(fileContent[cursor])) cursor++;
+                else if (startsWith('/', '/')) consumeLineComment();
+                else if (startsWith('/', '*')) (void)consumeBlockComment();
+            }
+            return makePayload(origin, cursor);
+        }
+
+        [[nodiscard]] inline span<const u8> scanTrailingTrivia() noexcept {
+            const u64 origin = cursor;
+            while (cursor < fileContent.size()) {
+                if (isHorizontalWhitespace(fileContent[cursor])) {
+                    cursor++;
+                }
+                else if (startsWith('/', '/')) {
+                    consumeLineComment();
+                }
+                else if (startsNewline()) {
+                    consumeNewline();
+                    break;
+                }
+                else if (startsWith('/', '*')) {
+                    const bool containsNewline = consumeBlockComment();
+                    if (containsNewline) break;
+                }
+                else break;
+            }
+            return makePayload(origin, cursor);
+        }
     }
 
     inline vector<Token> tokens;
@@ -27,7 +116,7 @@ namespace AOO::Lexer {
         tokens.clear();
     }
 
-    [[nodiscard]] inline Token getNextToken() noexcept {
+    [[nodiscard]] inline Token scanRealToken() noexcept {
         using namespace detail;
         using enum TokenType;
 
@@ -36,23 +125,12 @@ namespace AOO::Lexer {
             cerr << "How did we get here?\n";
             return makeToken(MISC_EOF, fileContent.size(), fileContent.size());
         }
-        if (isWhitespace(fileContent[cursor])) {
-            const u64 start = cursor;
-            while (cursor < fileContent.size() && isWhitespace(fileContent[cursor])) cursor++;
-            return makeToken(MISC_WHITESPACE, start, cursor);
-        }
         const u64 origin = cursor;
         switch (fileContent[cursor]) {
             //BOM mark `EF BB BF`
             case 239:
-                if (cursor == 0 && fileContent.size() >= 3 && fileContent[1] == 187 && fileContent[2] == 191) {
-                    cursor += 3;
-                    return getNextToken();
-                }
-                else {
-                    cursor++;
-                    return makeToken(MISC_ERROR, origin, cursor);
-                }
+                cursor++;
+                return makeToken(MISC_ERROR, origin, cursor);
             case '+':
                 if (cursor + 1 < fileContent.size()) {
                     if (fileContent[cursor + 1] == '+') {
@@ -97,25 +175,6 @@ namespace AOO::Lexer {
                     if (fileContent[cursor + 1] == '=') {
                         cursor += 2;
                         return makeToken(OP_SLASH_EQUAL, origin, cursor);
-                    }
-                    else if (fileContent[cursor + 1] == '/') {
-                        //Line comment: emit MISC_LINE_COMMENT trivia token (preserved for CST/IDE).
-                        //Payload includes the leading "//" and excludes the trailing newline.
-                        cursor += 2;
-                        while (cursor < fileContent.size() && fileContent[cursor] != '\n') cursor++;
-                        return makeToken(MISC_LINE_COMMENT, origin, cursor);
-                    }
-                    else if (fileContent[cursor + 1] == '*') {
-                        //Block comment: emit MISC_BLOCK_COMMENT trivia token (preserved for CST/IDE).
-                        //Payload includes the leading "/*" and the trailing "*/" if present;
-                        //if the comment is unterminated, payload covers everything to EOF.
-                        cursor += 2;
-                        while (cursor + 1 < fileContent.size() && !(fileContent[cursor] == '*' && fileContent[cursor + 1] == '/')) cursor++;
-                        //consume the closing "*/"
-                        if (cursor + 1 < fileContent.size()) cursor += 2;
-                        //unterminated
-                        else cursor = fileContent.size();
-                        return makeToken(MISC_BLOCK_COMMENT, origin, cursor);
                     }
                 }
                 cursor++;
@@ -260,6 +319,14 @@ namespace AOO::Lexer {
                 return getNumberLiteral(cursor);
             default: return getIdentifierLike(cursor);
         }
+    }
+
+    [[nodiscard]] inline Token getNextToken() noexcept {
+        const span<const u8> leadingTrivia = detail::scanLeadingTrivia();
+        Token token = scanRealToken();
+        token.leadingTrivia = leadingTrivia;
+        token.trailingTrivia = detail::scanTrailingTrivia();
+        return token;
     }
 
     inline void parse() noexcept {

@@ -17,10 +17,6 @@ namespace AOO {
         SetConsoleCP(CP_UTF8);
     #endif
 
-    #if 0
-        for (int i = 0; i < argc; i++) cout << "Argument " << i << ": " << argv[i] << '\n';
-    #endif
-
         App app;
         app.set_config();
         app.set_help_all_flag();
@@ -39,7 +35,7 @@ namespace AOO {
         app.add_option("-L,--include-path", include_paths, "Specify paths to search for included files.")->type_name("[DIR_PATH]");
 
         string dump_kind;
-        const Option& dump_lexer_tokens_Option = *app.add_option("--dump", dump_kind, "Dump Lexer tokens.")->type_name("[DUMP_KIND]")->check(CLI::IsMember({"lexer", "ast", "ir", "asm"}));
+        const Option& dump_lexer_tokens_Option = *app.add_option("--dump", dump_kind, "Dump Lexer tokens.")->type_name("[DUMP_KIND]")->check(CLI::IsMember({"token", "cst", "ast", "ir", "asm"}));
 
         string dump_to;
         app.add_option("--dump-to", dump_to, "Specify the file path to dump the output of --dump. If not, the output will be dumped to stdout.")->type_name("[FILE_PATH]");
@@ -72,7 +68,8 @@ namespace AOO {
             .debug = {
                 .dump_kind = [&dump_kind]() {
                     using enum Arguments::Debug::DumpKind;
-                    if (dump_kind == "lexer") return Lexer;
+                    if (dump_kind == "token") return Token;
+                    else if (dump_kind == "cst") return CST;
                     else if (dump_kind == "ast") return AST;
                     else if (dump_kind == "ir") return IR;
                     else if (dump_kind == "asm") return ASM;

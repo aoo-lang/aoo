@@ -167,9 +167,6 @@ namespace AOO::Lexer {
         LT_LABEL,
 
         //Misc
-        MISC_WHITESPACE,
-        MISC_LINE_COMMENT,
-        MISC_BLOCK_COMMENT,
         MISC_EOF,
         MISC_ERROR
     };
@@ -307,9 +304,6 @@ namespace AOO::Lexer {
             case LT_IDENTIFIER: return "LT_IDENTIFIER";
             case LT_LABEL: return "LT_LABEL";
             //Misc
-            case MISC_WHITESPACE: return "MISC_WHITESPACE";
-            case MISC_LINE_COMMENT: return "MISC_LINE_COMMENT";
-            case MISC_BLOCK_COMMENT: return "MISC_BLOCK_COMMENT";
             case MISC_EOF: return "MISC_EOF";
             case MISC_ERROR: return "MISC_ERROR";
         }
@@ -345,33 +339,62 @@ namespace AOO::Lexer {
     struct Token {
         TokenType type;
         StringType strlType;
+        span<const u8> leadingTrivia;
         span<const u8> payload;
+        span<const u8> trailingTrivia;
         u8 charPayload;
     };
 
-    inline ostream& operator<<(ostream& os, const Token& token) noexcept {
+    namespace detail {
+        [[nodiscard]] inline string dumpBytes(span<const u8> bytes) noexcept {
+            string result;
+            result += '"';
+            for (const u8 c : bytes) switch (c) {
+                case '\n': result += "\\n"; break;
+                case '\r': result += "\\r"; break;
+                case '\t': result += "\\t"; break;
+                case '"': result += "\\\""; break;
+                case '\\': result += "\\\\"; break;
+                default: result += static_cast<char>(c); break;
+            }
+            result += '"';
+            return result;
+        }
+    }
+
+    [[nodiscard]] inline string tostring_Token(const Token& token) noexcept {
+        string result;
         using enum TokenType;
-        os << "Tk: " << token.type << ", ";
-        if (token.type == LT_STRING) os << "StrlType: " << token.strlType << ", ";
+        result += tostring_TokenType(token.type);
+        result += ", ";
+        if (!token.leadingTrivia.empty()) {
+            result += "LeadingTrivia: ";
+            result += detail::dumpBytes(token.leadingTrivia);
+            result += ", ";
+        }
         switch (token.type) {
-            case MISC_WHITESPACE:
-                os << "<WHITESPACE>";
-                break;
-            case MISC_LINE_COMMENT:
-                os << "<LINE_COMMENT>";
-                break;
-            case MISC_BLOCK_COMMENT:
-                os << "<BLOCK_COMMENT>";
+            case LT_STRING:
+                result += "StrlType: ";
+                result += tostring_StringType(token.strlType);
+                result += ", ";
+                result += detail::dumpBytes(token.payload);
                 break;
             case MISC_EOF:
-                os << "<EOF>";
+                result += "<EOF>";
                 break;
             default:
-                os << '"';
-                os << string(token.payload.begin(), token.payload.end());
-                os << '"';
+                result += detail::dumpBytes(token.payload);
                 break;
         }
+        if (!token.trailingTrivia.empty()) {
+            result += ", TrailingTrivia: ";
+            result += detail::dumpBytes(token.trailingTrivia);
+        }
+        return result;
+    }
+
+    inline ostream& operator<<(ostream& os, const Token& token) noexcept {
+        os << tostring_Token(token);
         return os;
     }
 }
