@@ -7,7 +7,7 @@
 
 namespace AOO::Debug {
     typedef uint32_t u32;
-    using std::ofstream, std::ostream, std::cout, std::cerr, Lexer::tokens;
+    using std::ofstream, std::ostream, std::cout, std::cerr;
 
     namespace detail {
         inline void dumpLexerToken(const AOO::Arguments& args) noexcept {
@@ -17,10 +17,10 @@ namespace AOO::Debug {
                     cerr << "Error: Failed to open file \"" << args.debug.dump_to << "\" for writing\n";
                     exit(1001);
                 }
-                for (const auto& token : tokens) out << token << '\n';
+                for (const auto& token : AOO::Lexer::getTokenStorage()) out << token << '\n';
                 out.close();
             }
-            else for (const auto& token : tokens) cout << token << '\n';
+            else for (const auto& token : AOO::Lexer::getTokenStorage()) cout << token << '\n';
         }
     }
 

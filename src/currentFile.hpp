@@ -11,7 +11,7 @@ namespace AOO {
 
     inline vector<u8> fileContent;
 
-    [[nodiscard]] inline bool parseFileContent(const Arguments& args) noexcept {
+    [[nodiscard]] inline bool getFileContent(const Arguments& args) noexcept {
         if (!args.literal_code.empty()) {
             fileContent.assign(args.literal_code.begin(), args.literal_code.end());
             return true;

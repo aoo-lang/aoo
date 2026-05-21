@@ -5,7 +5,7 @@
 #include "tokens.hpp"
 #include "utils.hpp"
 
-namespace AOO::Lexer {
+namespace AOO::Lexer::internal {
     typedef uint8_t u8;
     typedef uint64_t u64;
     using std::cerr;

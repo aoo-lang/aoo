@@ -4,16 +4,14 @@
 #include <span>
 
 #include "../currentFile.hpp"
-#include "../util/string.hpp"
 #include "tokens.hpp"
 #include "utils.hpp"
 
-namespace AOO::Lexer {
+namespace AOO::Lexer::internal {
     typedef uint8_t u8;
     typedef uint16_t u16;
-    typedef uint32_t u32;
     typedef uint64_t u64;
-    using std::array, std::span, std::numeric_limits, Util::isValidIdentifierStart, Util::isValidIdentifierPart, Util::isHexDigit, Util::getHexValue, Util::isOctalDigit;
+    using std::array, std::span, std::numeric_limits;
     using enum TokenType;
 
     [[nodiscard]] inline Token getOctalEscapeSequence(u64& cursor, u8 secondChar) noexcept {

@@ -5,8 +5,9 @@
 
 #include "../util/BitField.hpp"
 
-namespace AOO::Lexer {
+namespace AOO::Lexer::internal {
     typedef uint8_t u8;
+    typedef uint64_t u64;
     using std::span, std::ostream, std::string;
 
     enum struct TokenType : u8 {
@@ -345,21 +346,15 @@ namespace AOO::Lexer {
         u8 charPayload;
     };
 
-    namespace detail {
-        [[nodiscard]] inline string dumpBytes(span<const u8> bytes) noexcept {
-            string result;
-            result += '"';
-            for (const u8 c : bytes) switch (c) {
-                case '\n': result += "\\n"; break;
-                case '\r': result += "\\r"; break;
-                case '\t': result += "\\t"; break;
-                case '"': result += "\\\""; break;
-                case '\\': result += "\\\\"; break;
-                default: result += static_cast<char>(c); break;
-            }
-            result += '"';
-            return result;
+    [[nodiscard]] inline string dumpBytes(span<const u8> bytes) noexcept {
+        string result;
+        for (u64 i = 0; i < bytes.size(); i++) switch (bytes[i]) {
+            case '\n': result += "\\n"; break;
+            case '\r': result += "\\r"; break;
+            case '\t': result += "\\t"; break;
+            default: result += static_cast<char>(bytes[i]); break;
         }
+        return result;
     }
 
     [[nodiscard]] inline string tostring_Token(const Token& token) noexcept {
@@ -368,27 +363,30 @@ namespace AOO::Lexer {
         result += tostring_TokenType(token.type);
         result += ", ";
         if (!token.leadingTrivia.empty()) {
-            result += "LeadingTrivia: ";
-            result += detail::dumpBytes(token.leadingTrivia);
-            result += ", ";
+            result += "LeadingTrivia: \"";
+            result += dumpBytes(token.leadingTrivia);
+            result += "\", ";
         }
         switch (token.type) {
             case LT_STRING:
                 result += "StrlType: ";
                 result += tostring_StringType(token.strlType);
                 result += ", ";
-                result += detail::dumpBytes(token.payload);
+                result += dumpBytes(token.payload);
                 break;
             case MISC_EOF:
                 result += "<EOF>";
                 break;
             default:
-                result += detail::dumpBytes(token.payload);
+                result += "\"";
+                result += dumpBytes(token.payload);
+                result += "\"";
                 break;
         }
         if (!token.trailingTrivia.empty()) {
-            result += ", TrailingTrivia: ";
-            result += detail::dumpBytes(token.trailingTrivia);
+            result += ", TrailingTrivia: \"";
+            result += dumpBytes(token.trailingTrivia);
+            result += "\"";
         }
         return result;
     }
@@ -397,4 +395,9 @@ namespace AOO::Lexer {
         os << tostring_Token(token);
         return os;
     }
+}
+
+namespace AOO::Lexer {
+    using internal::TokenType, internal::StringTypeFlags, internal::StringType, internal::Token;
+    using internal::tostring_TokenType, internal::tostring_StringType, internal::tostring_Token;
 }

@@ -4,120 +4,22 @@
 #include <string>
 
 #include "../currentFile.hpp"
-#include "../util/string.hpp"
 #include "charLiteral.hpp"
 #include "identifier.hpp"
 #include "numberLiteral.hpp"
 #include "stringLiteral.hpp"
 #include "tokens.hpp"
 #include "utils.hpp"
+#include "variables.hpp"
 
 namespace AOO::Lexer {
-    typedef uint64_t u64;
-    using std::cerr, std::string, std::span, Util::isWhitespace;
-
     namespace detail {
-        inline u64 cursor{0};
 
-        [[nodiscard]] inline bool startsWith(u8 first, u8 second) noexcept {
-            return cursor + 1 < fileContent.size() && fileContent[cursor] == first && fileContent[cursor + 1] == second;
-        }
-
-        [[nodiscard]] inline bool startsWithBom() noexcept {
-            return cursor == 0
-                && fileContent.size() >= 3
-                && fileContent[0] == 239
-                && fileContent[1] == 187
-                && fileContent[2] == 191;
-        }
-
-        [[nodiscard]] inline bool isHorizontalWhitespace(u8 c) noexcept {
-            return c == ' ' || c == '\t';
-        }
-
-        [[nodiscard]] inline bool startsNewline() noexcept {
-            return cursor < fileContent.size() && (fileContent[cursor] == '\n' || fileContent[cursor] == '\r');
-        }
-
-        inline void consumeNewline() noexcept {
-            if (cursor < fileContent.size() && fileContent[cursor] == '\r' && cursor + 1 < fileContent.size() && fileContent[cursor + 1] == '\n') {
-                cursor += 2;
-            }
-            else if (cursor < fileContent.size()) cursor++;
-        }
-
-        inline void consumeLineComment() noexcept {
-            cursor += 2;
-            while (cursor < fileContent.size() && fileContent[cursor] != '\n' && fileContent[cursor] != '\r') cursor++;
-        }
-
-        [[nodiscard]] inline bool consumeBlockComment() noexcept {
-            bool containsNewline = false;
-            cursor += 2;
-            while (cursor + 1 < fileContent.size() && !(fileContent[cursor] == '*' && fileContent[cursor + 1] == '/')) {
-                if (fileContent[cursor] == '\r') {
-                    containsNewline = true;
-                    if (cursor + 1 < fileContent.size() && fileContent[cursor + 1] == '\n') cursor += 2;
-                    else cursor++;
-                }
-                else {
-                    if (fileContent[cursor] == '\n') containsNewline = true;
-                    cursor++;
-                }
-            }
-            if (cursor + 1 < fileContent.size()) cursor += 2;
-            else cursor = fileContent.size();
-            return containsNewline;
-        }
-
-        [[nodiscard]] inline bool startsTrivia() noexcept {
-            return cursor < fileContent.size()
-                && (isWhitespace(fileContent[cursor]) || startsWith('/', '/') || startsWith('/', '*') || startsWithBom());
-        }
-
-        [[nodiscard]] inline span<const u8> scanLeadingTrivia() noexcept {
-            const u64 origin = cursor;
-            while (startsTrivia()) {
-                if (startsWithBom()) cursor += 3;
-                else if (isWhitespace(fileContent[cursor])) cursor++;
-                else if (startsWith('/', '/')) consumeLineComment();
-                else if (startsWith('/', '*')) (void)consumeBlockComment();
-            }
-            return makePayload(origin, cursor);
-        }
-
-        [[nodiscard]] inline span<const u8> scanTrailingTrivia() noexcept {
-            const u64 origin = cursor;
-            while (cursor < fileContent.size()) {
-                if (isHorizontalWhitespace(fileContent[cursor])) {
-                    cursor++;
-                }
-                else if (startsWith('/', '/')) {
-                    consumeLineComment();
-                }
-                else if (startsNewline()) {
-                    consumeNewline();
-                    break;
-                }
-                else if (startsWith('/', '*')) {
-                    const bool containsNewline = consumeBlockComment();
-                    if (containsNewline) break;
-                }
-                else break;
-            }
-            return makePayload(origin, cursor);
-        }
-    }
-
-    inline vector<Token> tokens;
-
-    inline void init() noexcept {
-        detail::cursor = 0;
-        tokens.clear();
-    }
+    typedef uint64_t u64;
+    using std::cerr, std::string, std::span;
+    using namespace AOO::Lexer::internal;
 
     [[nodiscard]] inline Token scanRealToken() noexcept {
-        using namespace detail;
         using enum TokenType;
 
         if (cursor == fileContent.size()) return makeToken(MISC_EOF, cursor, cursor);
@@ -322,18 +224,27 @@ namespace AOO::Lexer {
     }
 
     [[nodiscard]] inline Token getNextToken() noexcept {
-        const span<const u8> leadingTrivia = detail::scanLeadingTrivia();
+        const span<const u8> leadingTrivia = internal::scanLeadingTrivia(internal::cursor);
         Token token = scanRealToken();
         token.leadingTrivia = leadingTrivia;
-        token.trailingTrivia = detail::scanTrailingTrivia();
+        token.trailingTrivia = internal::scanTrailingTrivia(internal::cursor);
         return token;
     }
 
-    inline void parse() noexcept {
+    } // namespace detail
+
+    inline void reset() noexcept {
+        internal::cursor = 0;
+        internal::tokens.clear();
+    }
+
+    inline void parseTokens() noexcept {
         Token token{};
         do {
-            token = getNextToken();
-            tokens.push_back(token);
+            token = detail::getNextToken();
+            internal::tokens.push_back(token);
         } while (token.type != TokenType::MISC_EOF);
     }
+
+    inline const vector<Token>& getTokenStorage() noexcept { return internal::tokens; }
 }
